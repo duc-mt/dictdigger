@@ -3,10 +3,11 @@
 
 # Documentation
 Throughout the project, I will use four Python modules, two of which will require the user to download in order to run the program. 
-1.	requests - allows for the exchange of HTTP requests using Python.
-2.	urllib.request – defines functions and classes which help in opening URLs.</br>Its urlretrieve() function is used to retrieve the content of a URL directly into a local location on disk.
-3.	bs4 – BeautifulSoup used to pull data out of HTML files of the website – _pip install bs4_.
-4.	pygame – mixer used to play the mp3 file (pronunciation file) – _pip install pygame_.
+1.	time - its sleep() function helps give some break (0.5 to 1 second) between each part of the program.
+2.	requests - allows for the exchange of HTTP requests using Python.
+3.	urllib.request – defines functions and classes which help in opening URLs.</br>Its urlretrieve() function is used to retrieve the content of a URL directly into a local location on disk.
+4.	bs4 – BeautifulSoup used to pull data out of HTML files of the website – _pip install bs4_.
+5.	pygame – mixer used to play the mp3 file (pronunciation file) – _pip install pygame_.
 
 I also use user-defined functions and organise those functions into a separate program so as to make it possible to break up such a large program into manageable sized parts, and to keep related parts together.
 
