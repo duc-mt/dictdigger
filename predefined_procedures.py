@@ -28,7 +28,7 @@ def line():
     time.sleep(1)
 
 
-# A function to find all definitions.
+# A function to find all other  definitions of a  word.
 def find_all_definitions(count, definition):
     for i in range(2, count + 1):
         print(f'Entry {i} of {count}', end = '')
