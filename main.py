@@ -35,13 +35,15 @@ from bs4 import BeautifulSoup as bs
 from pygame import mixer
 
 
+# Welcome message.
 time.sleep(1)
 func.line()
 print('Welcome to the Dictionary of Merriam-Webster:')
 time.sleep(1)
 func.line()
 
-# Top Lookup Right Now
+
+# Top Lookup Right Now.
 url = f'https://www.merriam-webster.com/dictionary'
 res = requests.get(url)
 text = res.text
@@ -53,18 +55,21 @@ for i in range(3):
 print('Top Lookup Right Now:', day.get_text())
 time.sleep(1)
 
-# Search a Word
+
+# Look up a Word.
 func.line()
 word = input('Search for a Word: ')
 func.line()
 
-# Connect to the dictionary
+
+# Connect to the dictionary.
 url = f'https://www.merriam-webster.com/dictionary/{word}'
 res = requests.get(url)
 text = res.text
 soup = bs(res.content, 'html.parser')
 
-# Rule out word not in the dictionary
+
+# Validate word that is not in the dictionary.
 false_message = 'isn\'t in the dictionary'
 while false_message in text:
     print(f'The word you\'ve entered, \'{word}\', {false_message}.\n')
@@ -75,17 +80,18 @@ while false_message in text:
     text = res.text
     soup = bs(res.content, 'html.parser')
 
+
 # Now we have a valid word
 
 # Get the definition
-count = text.count('dtText')        # Count the number of definitions of the word
+count = text.count('dtText')        # Count the number of definitions of the word.
 
 print(f'Definition of {word.upper()}:\n')
 
-if count == 1:                  # If the word has only 1 definition
+if count == 1:                      # If the word has only 1 definition.
     definition = soup.find('span', class_='dtText')
     print(definition.get_text())
-else:                           # If the word has more than 1 definition
+else:                               # If the word has more than 1 definition.
     definition = soup.find('span', class_='dtText')
     print('Entry 1 of ', count, definition.get_text(), sep = '')
     func.find_all_definitions(count, definition)
@@ -93,21 +99,21 @@ else:                           # If the word has more than 1 definition
 time.sleep(2)
 
 
-# Thesaurus 
+# Thesaurus.
 try:
-    # Retrieve Thesaurus webpage
+    # Retrieve Thesaurus webpage.
     url_1 = f'https://www.merriam-webster.com/thesaurus/{word}'
     res_1 = requests.get(url_1)
     soup_1 = bs(res_1.content, 'html.parser')
 
-    # Synonyms
+    # Synonyms.
     func.line()
     print(f'Synonyms of {word.upper()}: ', end = '')
     synonym = soup_1.find('ul', class_='mw-list')
     print(synonym.get_text())
     time.sleep(2)
 
-    # Related words
+    # Related words.
     func.line()
     print(f'Words Related to {word.upper()}: ', end = '')
     related = synonym.find_next('ul')
@@ -118,17 +124,17 @@ except:
     time.sleep(1)
 
 
-#MP3
+#MP3: pronunciation file.
 func.line()
 try:
     # Call the fucntion to return the list of the elements of the
-    # URL of the mp3 file for pronouncing
+    # URL of the mp3 file for pronouncing.
     URL = func.mp3(text)
 
-    # Convert the mp3_url from list into string
+    # Convert the mp3_url from list into string.
     mp3_url = ''.join(URL)
 
-    # Ask the user whether they want to hear the pronunciation
+    # Ask the user whether they want to hear the pronunciation.
     pronounce = input('Do you want to hear its pronunciation? (Y/N): ')
     file_name = urllib.request.urlretrieve(mp3_url, 'word_pronounce.mp3')
     while pronounce.upper() == 'Y':   
