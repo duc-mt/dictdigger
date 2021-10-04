@@ -1,3 +1,4 @@
+# !usr/bin/env/ python3
 #
 # File:         predefined_procedures.py
 # Author:       Tan Duc Mai
@@ -9,13 +10,11 @@
 #
 
 """
-The time module has the sleep() function which gives some break (0.5 to 1 second)
-between each part of the program.
+The time module has the sleep() function which gives some break (0.5 to 1 second) between each part of the program.
 
 The requests nodule allows for the exchange of HTTP requests.
 
-The bs4 module has the BeautifulSoup which downloads data of HTML files of the website
-It requires pre-installation –> pip install bs4.
+The bs4 module has the BeautifulSoup which downloads data of HTML files of the website It requires pre-installation –> pip install bs4.
 """
 
 import time
@@ -52,4 +51,4 @@ def mp3(text):
         if i == '"':
             return mp3_url
         else:
-            mp3_url.append(i)   
+            mp3_url.append(i)
