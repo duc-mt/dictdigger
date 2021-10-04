@@ -14,7 +14,7 @@ The time module has the sleep() function which gives some break (0.5 to 1 second
 
 The requests nodule allows for the exchange of HTTP requests.
 
-The bs4 module has the BeautifulSoup which downloads data of HTML files of the website It requires pre-installation –> pip install bs4.
+The bs4 module has the BeautifulSoup which downloads data of HTML files of the website. It requires pre-installation –> pip install bs4.
 """
 
 import time
@@ -22,13 +22,13 @@ import requests
 from bs4 import BeautifulSoup as bs
 
 
-# A function to draw a line break
+# A function to draw a line break.
 def line():
     print('\n-----------------------------------------------------------------------\n')
     time.sleep(1)
 
 
-# A function to find all definition
+# A function to find all definitions.
 def find_all_definitions(count, definition):
     for i in range(2, count + 1):
         print(f'Entry {i} of {count}', end = '')
@@ -42,8 +42,8 @@ def find_all_definitions(count, definition):
         print(i.get_text())
 
 
-# A function to pronounce the word
-# URL of the .mp3 file
+# A function to pronounce the word.
+# It returns the  URL of the .mp3 file.
 def mp3(text):
     locate = text.find('contentURL')
     mp3_url = []
