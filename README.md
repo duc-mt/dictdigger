@@ -11,7 +11,7 @@ Throughout the project, I will use four Python modules, two of which will requir
 
 I also use user-defined functions and organise those functions into a separate program so as to make it possible to break up such a large program into manageable sized parts, and to keep related parts together.
 
-The module that I frequently use is the time module to make a short pause after each section (define, pronounce, etc.), usually between 1 and 2 seconds.
+The module that I frequently use is the time module to make a short pause after each section (define, pronounce, etc.), usually from 1 to 2 seconds.
 
 To make the program more like a dictionary, before getting into any definition, I make a welcome statement and show the top lookup today. I get the URL of the website, then use the requests and bs4 module to extract the HTML data from the page. Then, I search through the HTML data to find the <a> tag which contains the information /word-of-the-day. Since the one I want to find is the fourth <a> tag containing the information /word-of-the-day, I use the find_next() function three times to find it. Lastly, I use the get_text() function to get the actual information without any HTML – which is the word of the day I am looking for.
 
