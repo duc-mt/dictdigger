@@ -1,3 +1,5 @@
+# !usr/bin/env/ python3
+
 #
 # File:         main.py
 # Author:       Tan Duc Mai
@@ -9,18 +11,15 @@
 #
 
 """
-The predefined_procedures contains a set of three functions which helps with code legibility
-and code reuse.
+The predefined_procedures contains a set of three functions which helps with code legibility and code reuse.
 
-The time module has the sleep() function which gives some break (0.5 to 1 second)
-between each part of the program.
+The time module has the sleep() function which gives some break (0.5 to 1 second) between each part of the program.
 
 The requests nodule allows for the exchange of HTTP requests.
 
-The urllib.request has the urlretrieve() function which retrieves the content of
-a URL directly into a local location on disk.
+The urllib.request has the urlretrieve() function which retrieves the content of a URL directly into a local location on disk.
 
-The bs4 module has the BeautifulSoup() function which downloads data of HTML files of the website
+The bs4 module has the BeautifulSoup() function which downloads data of HTML files of the website.
 It requires pre-installation –> pip install bs4.
 
 The pygame.mixer is a module which loads and plays sound or the mp3 file.
@@ -94,7 +93,7 @@ else:                           # If the word has more than 1 definition
 time.sleep(2)
 
 
-# Thesaurus
+# Thesaurus 
 try:
     # Retrieve Thesaurus webpage
     url_1 = f'https://www.merriam-webster.com/thesaurus/{word}'
@@ -118,7 +117,7 @@ except:
     print(f'\nSorry! There isn\'t any synonym for "{word}".')
     time.sleep(1)
 
-    
+
 #MP3
 func.line()
 try:
@@ -141,6 +140,7 @@ except:
     print(f'Sorry! There isn\'t any pre-recorded pronunciation for "{word}".')
 
 time.sleep(1)
+
 
 # The end.
 func.line()
