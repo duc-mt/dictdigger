@@ -11,9 +11,9 @@
 #
 
 """
-The predefined_procedures contains a set of three functions which helps with code legibility and code reuse.
+The predefined_procedures module contains a set of three functions which help with code legibility and code reuse.
 
-The time module has the sleep() function which gives some break (0.5 to 1 second) between each part of the program.
+The time module has the sleep() function which gives a short break (0.5 to 1 second) between each major part of the program.
 
 The requests nodule allows for the exchange of HTTP requests.
 
@@ -24,7 +24,7 @@ It requires pre-installation –> pip install bs4.
 
 The pygame.mixer is a module which loads and plays sound or the mp3 file.
 This is what I use to play the pronunciation file downloaded by using the urlretrieve() function.
-It requires pre-installation –> pip install pygame.
+It also requires pre-installation –> pip install pygame.
 """
 
 import predefined_procedures as func
