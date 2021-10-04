@@ -1,5 +1,5 @@
 # English Dictionary Application
-**Aim**: In this project, I will propose a program that simulates a dictionary. Specifically, I will web scrap an online dictionary (**Merriam-Webster**) and extracts data from it, printing out the definition as the user inputs a word. Moreover, I also extract the pronunciation from the dictionary and play it if the user asks for it. 
+**Aim**: In this project, I will propose a program that simulates a dictionary. Specifically, I will web scrap an online dictionary (**Merriam-Webster**) - https://www.merriam-webster.com/ - and extracts data from it, printing out the definition as the user inputs a word. Moreover, I also extract the pronunciation from the dictionary and play it if the user asks for it. 
 
 # Documentation
 Throughout the project, I will use four Python modules, two of which will require the user to download in order to run the program. 
@@ -29,3 +29,6 @@ Lastly, I use the define function called mp3 to return the URL of the mp3 of the
 The dictionary program culminates with a little thank you note.
 
 # Output
+An demonstration of web scrapping successfully.
+
+https://user-images.githubusercontent.com/88569156/135856276-3e714d39-6567-4f12-8041-46a008604795.mp4
