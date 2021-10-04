@@ -132,21 +132,15 @@ try:
     # Ask the user whether they want to hear the pronunciation
     pronounce = input('Do you want to hear its pronunciation? (Y/N): ')
     file_name = urllib.request.urlretrieve(mp3_url, 'word_pronounce.mp3')
-    if pronounce.upper() == 'Y':   
+    while pronounce.upper() == 'Y':   
         mixer.init()
         mixer.music.load('word_pronounce.mp3')
         mixer.music.play()
-        replay = input('One more time? (Y/N): ')
-        while replay.upper() == 'Y':
-            mixer.init()
-            mixer.music.load('word_pronounce.mp3')
-            mixer.music.play()
-            replay = input('One more time? (Y/N): ')
+        pronounce = input('One more time? (Y/N): ')
 except:
     print(f'Sorry! There isn\'t any pre-recorded pronunciation for "{word}".')
 
 time.sleep(1)
-
 
 # The end.
 func.line()
