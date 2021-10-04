@@ -81,9 +81,9 @@ while false_message in text:
     soup = bs(res.content, 'html.parser')
 
 
-# Now we have a valid word
+# Now we have a valid word.
 
-# Get the definition
+# Get the definition.
 count = text.count('dtText')        # Count the number of definitions of the word.
 
 print(f'Definition of {word.upper()}:\n')
@@ -126,9 +126,9 @@ except:
 
 #MP3: pronunciation file.
 func.line()
+
 try:
-    # Call the fucntion to return the list of the elements of the
-    # URL of the mp3 file for pronouncing.
+    # Call the fucntion to return the list of the elements of the URL of the mp3 file for pronouncing.
     URL = func.mp3(text)
 
     # Convert the mp3_url from list into string.
