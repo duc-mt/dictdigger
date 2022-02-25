@@ -1,10 +1,10 @@
-#!/usr/bin/env/ python3
+#!/usr/bin/python3
 
 #
 # File:         predefined_procedures.py
 # Author:       Tan Duc Mai
 # Email:        tan.duc.work@gmail.com
-# Date:         20/8/2021
+# Date:         20-Aug-21
 # Description:  Define functions that help with code legibility and code reuse.
 #   I hereby declare that I completed this work without any improper help
 #   from a third party and without using any aids other than those cited.
