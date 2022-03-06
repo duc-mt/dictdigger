@@ -11,31 +11,39 @@
 #
 
 """
-The predefined_procedures module contains a set of three functions which help with code legibility and code reuse.
 
-The time module has the sleep() function which gives a short break (0.5 to 1 second) between each major part of the program.
+The module mru_functions contains a set of three 'most recently used'
+functions, which help with code legibility and code reuse.
 
-The requests nodule allows for the exchange of HTTP requests.
+The time module has the sleep() function which is used to give a short break
+(0.5 to 1 second) between each major part of the program.
 
-The urllib.request has the urlretrieve() function which retrieves the content of a URL directly into a local location on disk.
+The urllib.request has the urlretrieve() function which retrieves the content
+of a URL directly into a local location on disk.
+It is installed by default with Python 3.10 which I am using.
 
-The bs4 module has the BeautifulSoup() function which downloads data of HTML files of the website.
-It requires pre-installation –> pip install bs4.
+The requests module allows for the exchange of HTTP requests.
+It requires pre-installation –> pip install requests
+
+The bs4 module has the BeautifulSoup() function which downloads data of HTML
+files from the website.
+It requires pre-installation –> pip install bs4
 
 The pygame.mixer is a module which loads and plays sound or the mp3 file.
-This is what I use to play the pronunciation file downloaded by using the urlretrieve() function.
-It also requires pre-installation –> pip install pygame.
+This is what I use to play the pronunciation file downloaded by using the
+urlretrieve() function.
+It also requires pre-installation –> pip install pygame
 """
 
-import predefined_procedures as func
+import mru_functions as func
 import time
-import requests
 import urllib.request
+import requests
 from bs4 import BeautifulSoup as bs
 from pygame import mixer
 
 
-# Welcome message.
+# Welcome message
 time.sleep(1)
 func.line()
 print('Welcome to the Dictionary of Merriam-Webster:')
