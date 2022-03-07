@@ -147,7 +147,7 @@ def main():
         # Convert the mp3_url from a list into a string.
         mp3_url = ''.join(URL)
 
-         # Ask the user whether they want to hear the pronunciation.
+        # Ask the user whether they want to hear the pronunciation.
         acceptable_response = ('Y', 'y', 'N', 'n')
         pronounce = None
         while pronounce is None or pronounce not in acceptable_response:
