@@ -82,7 +82,11 @@ def main():
     false_message = 'isn\'t in the dictionary'
     while false_message in text:
         print(f'The word you\'ve entered, \'{word}\', {false_message}.\n')
-        word = input('Try again: ')
+        word = None
+        while word is None or word == '':
+            word = input('Try again: ')
+            if word == '':
+                print('Please Enter a non-empty word.', end='\n\n')
         url = f'https://www.merriam-webster.com/dictionary/{word}'
         res = requests.get(url)
         text = res.text
