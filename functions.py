@@ -16,7 +16,10 @@ The time module has the sleep() function which is used to give a short break
 
 The requests module allows for the exchange of HTTP requests.
 """
-import time
+# Standard library imports.
+from time import sleep as take_a_break
+
+# Related third party imports.
 import requests
 
 
@@ -24,7 +27,7 @@ import requests
 def draw_line():
     # A function to draw a line break.
     print('\n-----------------------------------------------------------------------\n')
-    time.sleep(1)
+    take_a_break(1)
 
 
 def find_all_definitions(count, definition):
