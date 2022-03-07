@@ -3,7 +3,7 @@
 # Author:       Tan Duc Mai
 # Email:        tan.duc.work@gmail.com
 # Date:         20-Aug-21
-# Description:  The main working area of the dictionary.
+# Description:  Retrieve the content of an online dictionary.
 #   I hereby declare that I completed this work without any improper help
 #   from a third party and without using any aids other than those cited.
 #
