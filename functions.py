@@ -21,7 +21,7 @@ import requests
 
 
 # ---------------------------- Function Definitions ---------------------------
-def line():
+def draw_line():
     # A function to draw a line break.
     print('\n-----------------------------------------------------------------------\n')
     time.sleep(1)
