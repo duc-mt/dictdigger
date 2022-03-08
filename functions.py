@@ -3,7 +3,7 @@
 # Author:       Tan Duc Mai
 # Email:        tan.duc.work@gmail.com
 # Date:         20-Aug-21
-# Description:  Define resuable functions that help with code legibility.
+# Description:  Define resuable functions to improve code legibility.
 #   I hereby declare that I completed this work without any improper help
 #   from a third party and without using any aids other than those cited.
 #

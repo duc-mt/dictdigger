@@ -30,8 +30,9 @@ This is what I use to play the pronunciation file downloaded by using the
 urlretrieve() function.
 It also requires pre-installation –> pip install pygame
 
-The functions module contains a set of three functions, which help with code
-legibility and code reuse.
+The functions module is a user-defined module that contains a set of three
+functions which I separate from the main program to improve code legibility and
+code reuse.
 """
 # Standard library imports.
 from time import sleep as take_a_break
