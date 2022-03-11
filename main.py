@@ -163,7 +163,7 @@ def main():
         # Download the mp3 file to the local directory.
         urlretrieve(mp3_url, 'word_to_pronounce.mp3')
 
-        # Repeatedly pronounce the word if user reponds 'y'.
+        # Repeatedly pronounce the word if user responds 'y'.
         while pronounce.lower() == 'y':
             mixer.init()
             mixer.music.load('word_to_pronounce.mp3')
