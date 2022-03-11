@@ -26,7 +26,7 @@ import requests
 # ---------------------------- Function Definitions ---------------------------
 def draw_a_line():
     # A function to draw a line break.
-    print('\n-----------------------------------------------------------------------\n')
+    print('\n', '-' * 71, '\n')
     take_a_break(1)
 
 
