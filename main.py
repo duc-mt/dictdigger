@@ -54,16 +54,16 @@ def main():
     print('Welcome to the Dictionary of Merriam-Webster')
     func.draw_a_line()
 
-    # Top Lookup Right Now.
+    # Word of the Day.
     url = f'https://www.merriam-webster.com/dictionary'
     res = requests.get(url)
     text = res.text
     soup = bs(res.content, 'html.parser')
 
     day = soup.find('a', attrs={'href': '/word-of-the-day'})
-    for i in range(3):
+    for i in range(2):
         day = day.find_next('a', attrs={'href': '/word-of-the-day'})
-    print('Top Lookup Right Now:', day.get_text())
+    print('Word of the Day:', day.get_text())
 
     # Look up a word.
     func.draw_a_line()
