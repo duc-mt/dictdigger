@@ -127,7 +127,7 @@ def main():
         mp3_url = ''.join(URL)
 
         # Ask the user whether they want to hear the pronunciation.
-        acceptable_response = ('Y', 'y', 'N', 'n')
+        acceptable_response = ('Y', 'y', 'N', 'n', '')
         pronounce = None
         while pronounce is None or pronounce not in acceptable_response:
             pronounce = input('Do you want to hear its pronunciation? [Y/n] ')
@@ -137,8 +137,8 @@ def main():
         # Download the mp3 file to the local directory.
         urlretrieve(mp3_url, 'word_to_pronounce.mp3')
 
-        # Repeatedly pronounce the word if user responds 'y'.
-        while pronounce.lower() == 'y':
+        # Repeatedly pronounce the word if user responds 'y' or presses Enter.
+        while pronounce.lower() == 'y' or pronounce == '':
             mixer.init()
             mixer.music.load('word_to_pronounce.mp3')
             mixer.music.play()
