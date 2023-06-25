@@ -40,7 +40,7 @@ from time import sleep as take_a_break
 from urllib.request import urlretrieve
 
 # Related third party imports.
-from bs4 import BeautifulSoup as bs
+from bs4 import BeautifulSoup
 
 import functions as func
 
@@ -51,19 +51,20 @@ import requests
 
 # ------------------------------- Main Function -------------------------------
 def main():
+    """Only be invoked under the condition `if __name__ == '__main__':`."""
     # Welcome message
     func.draw_a_line()
     print('Welcome to the Dictionary of Merriam-Webster')
     func.draw_a_line()
 
     # Word of the Day.
-    url = f'https://www.merriam-webster.com/dictionary'
+    url = 'https://www.merriam-webster.com/dictionary'
     res = requests.get(url)
     text = res.text
-    soup = bs(res.content, 'html.parser')
+    soup = BeautifulSoup(res.content, 'html.parser')
 
     day = soup.find('a', attrs={'href': '/word-of-the-day'})
-    for i in range(2):
+    for _ in range(2):
         day = day.find_next('a', attrs={'href': '/word-of-the-day'})
     print('Word of the Day:', day.get_text())
 
@@ -79,12 +80,12 @@ def main():
     url = f'https://www.merriam-webster.com/dictionary/{word}'
     res = requests.get(url)
     text = res.text
-    soup = bs(res.content, 'html.parser')
+    soup = BeautifulSoup(res.content, 'html.parser')
 
     # Validate word that is not in the dictionary.
-    false_message = 'isn\'t in the dictionary'
+    false_message = "isn't in the dictionary"
     while false_message in text:
-        print(f'The word you\'ve entered, \'{word}\', {false_message}.\n')
+        print(f'The word you\'ve entered, "{word}", {false_message}.\n')
         word = None
         while word is None or word == '':
             word = input('Try again: ')
@@ -93,7 +94,7 @@ def main():
         url = f'https://www.merriam-webster.com/dictionary/{word}'
         res = requests.get(url)
         text = res.text
-        soup = bs(res.content, 'html.parser')
+        soup = BeautifulSoup(res.content, 'html.parser')
 
     # Now we have a valid word.
     func.draw_a_line()
@@ -123,10 +124,10 @@ def main():
     try:
         # Call the function to return the list of the elements of the URL of
         # the mp3 file for pronouncing.
-        URL = func.mp3(text)
+        url = func.mp3(text)
 
         # Convert the mp3_url from a list into a string.
-        mp3_url = ''.join(URL)
+        mp3_url = ''.join(url)
 
         # Ask the user whether they want to hear the pronunciation.
         acceptable_response = ('Y', 'y', 'N', 'n', '')
