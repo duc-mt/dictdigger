@@ -1,0 +1,10 @@
+name: 🐍 Python Codestyle
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  sync:
+    name: ⤵️ Run Python Codestyle Check
+    uses: tanducmai/dotfiles/.github/workflows/py-codestyle.yml@master
