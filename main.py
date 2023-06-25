@@ -111,7 +111,7 @@ def main():
     else:                           # If the word has more than 1 definitions
         try:
             definition = soup.find('span', class_='dtText')
-            print('Entry 1 of ', count, definition.get_text(), sep='')
+            print('Entry 1', definition.get_text(), sep='')
             func.find_all_definitions(count, definition)
         except AttributeError:
             print(': LAST ENTRY FOUND!')
