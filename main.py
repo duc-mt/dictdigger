@@ -10,7 +10,8 @@
 
 
 # ------------------------------- Module Imports ------------------------------
-"""
+"""Description of all imported modules.
+
 The time module has the sleep() function which is used to give a short break
 (0.5 to 1 second) between each major part of the program.
 
@@ -39,12 +40,13 @@ from time import sleep as take_a_break
 from urllib.request import urlretrieve
 
 # Related third party imports.
-import requests
 from bs4 import BeautifulSoup as bs
+
+import functions as func
+
 from pygame import mixer
 
-# Local application/library specific imports.
-import functions as func
+import requests
 
 
 # ------------------------------- Main Function -------------------------------
