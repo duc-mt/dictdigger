@@ -112,35 +112,6 @@ def main():
 
     take_a_break(1)
 
-    # Thesaurus.
-    func.draw_a_line()
-
-    try:
-        # Retrieve Thesaurus web page.
-        url_1 = f'https://www.merriam-webster.com/thesaurus/{word}'
-        res_1 = requests.get(url_1)
-        soup_1 = bs(res_1.content, 'html.parser')
-
-        # Synonyms.
-        input('Press Enter to look up synonyms.')
-        print()
-        print(f'-> Synonyms of {word.upper()}: ', end='')
-        synonym = soup_1.find('ul', class_='mw-list')
-        print(synonym.get_text())
-        take_a_break(1)
-
-        # Related words.
-        func.draw_a_line()
-        input('Press Enter to look up related words.')
-        print()
-        print(f'-> Words related to {word.upper()}: ', end='')
-        related = synonym.find_next('ul')
-        print(related.get_text())
-    except BaseException:
-        print(f'\n\nSorry! There isn\'t a synonym for "{word}".')
-
-    take_a_break(1)
-
     # MP3: the pronunciation file.
     func.draw_a_line()
 
