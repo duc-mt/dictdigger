@@ -1,9 +1,17 @@
 # Table of Contents
 
+<!-- vim-markdown-toc GFM -->
+
 1. [Aim](#aim)
 1. [Implementation](#implementation)
-1. [Video
-   Production](https://raw.githubusercontent.com/tanducmai/web-scraping-dictionary/main/video_production.mp4)
+    1. [Standard Library Imports](#standard-library-imports)
+    1. [Related third party imports](#related-third-party-imports)
+    1. [Local application/library specific
+       imports](#local-applicationlibrary-specific-imports)
+1. [Video Production](#video-production)
+1. [Directory Structure](#directory-structure)
+
+<!-- vim-markdown-toc -->
 
 # Aim
 
@@ -11,41 +19,32 @@ In this project, I will propose a program that simulates a dictionary.
 Specifically, I will web scrap an online dictionary
 [Merriam-Webster](https://www.merriam-webster.com/) - and extracts data from it,
 printing out the definition(s) as the user inputs a word. Moreover, I also
-retrieve the pronunciation from the dictionary and play it if the user asks for
-.
+retrieve the pronunciation from the dictionary and play it if the user asks for.
 
 # Implementation
 
 Throughout the project, I will use six Python modules, two of which will require
 the user to download in order to run the program.
 
-## Standard Library Imports
-
 1. time - its sleep() function is used to give a short break (0.5 to 1 second)
    between each major part of the program.
-2. urllib.request – defines functions and classes which help in opening URLs.
-     - Its urlretrieve() function is used to retrieve the content of a URL directly
-    into a local location on disk.
-     - It is installed by default with Python 3.10 which I am using.
-
-## Related third party imports
-
-3. requests - allows for the exchange of HTTP requests.
-     - It requires pre-installation –> pip install requests
-4. bs4 – its BeautifulSoup() function is used to pull data out of HTML files of
+1. urllib.request – defines functions and classes which help in opening URLs.
+    - Its urlretrieve() function is used to retrieve the content of a URL
+      directly into a local location on disk.
+    - It is installed by default with Python 3.10 which I am using.
+1. bs4 – its BeautifulSoup() function is used to pull data out of HTML files of
 the website.
-     - It requires pre-installation –> pip install bs4
-5. pygame – its mixer() function is used to play the mp3 file (pronunciation
+    - It requires pre-installation –> pip install bs4
+1. functions - this is a user-defined module that contains a set of three
+functions which I separate from the main program to improve code legibility and
+code reuse.
+1. pygame – its mixer() function is used to play the mp3 file (pronunciation
 file).
-     - This is what I use to play the pronunciation file downloaded by using the
-    urlretrieve() function.
-     - It also requires pre-installation –> pip install pygame
-
-## Local application/library specific imports
-
-6. functions - this is a user-defined module that contains a set of three
-   functions which I separate from the main program to improve code legibility
-   and code reuse.
+    - This is what I use to play the pronunciation file downloaded by using the
+      urlretrieve() function.
+    - It also requires pre-installation –> pip install pygame
+1. requests - allows for the exchange of HTTP requests.
+    - It requires pre-installation –> pip install requests
 
 The module that I frequently use is the time module to make a short pause after
 each section (define, pronounce, etc.), usually from 0.5 to 1 seconds.
@@ -67,7 +66,7 @@ I use a similar procedure to find the definition. Some slight differences are:
   inputted word into the last curly brackets. Then I can get the URL to the
   entry of that word.
 - I rule out word that is not in the dictionary by checking whether the "false"
-  message "isn\'t in the dictionary" is in the HTML data extracted from the URL.
+  message "isn't in the dictionary" is in the HTML data extracted from the URL.
   If yes, I use a while loop to keep inviting the user to re-enter a word until
   the "false" message is not in the extracted HTML data.
 - After having a valid word, I will determine how many definitions the word has
@@ -104,3 +103,16 @@ The dictionary program culminates with a little thank you note.
 
 [Execute the **main**
 module](https://raw.githubusercontent.com/tanducmai/web-scraping-dictionary/main/video_production.mp4)
+
+# Directory Structure
+
+```
+.
+├── README.md
+├── functions.py
+├── main.py
+├── requirements.txt
+└── video_production.mp4
+
+0 directories, 5 files
+```
