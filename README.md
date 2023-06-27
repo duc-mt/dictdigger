@@ -4,10 +4,6 @@
 
 1. [Aim](#aim)
 1. [Implementation](#implementation)
-    1. [Standard Library Imports](#standard-library-imports)
-    1. [Related third party imports](#related-third-party-imports)
-    1. [Local application/library specific
-       imports](#local-applicationlibrary-specific-imports)
 1. [Video Production](#video-production)
 1. [Directory Structure](#directory-structure)
 
