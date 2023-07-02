@@ -71,9 +71,6 @@ I use a similar procedure to find the definition. Some slight differences are:
   - Otherwise, use the defined function *find_all_definition()* to find every
     definitions.
 
-Afterwards, I use a similar procedure to access the thesaurus of the word to
-find its synonyms and related words.
-
 Lastly, I use the define function called *mp3()* to return the URL of the mp3 of
 the word’s pronunciation. I simply assign the argument text, which is the HTML
 data of the word in the dictionary, to the *mp3()* function and locate the text
@@ -98,7 +95,7 @@ The dictionary program culminates with a little thank you note.
 # Video Production
 
 [Execute the **main**
-module](https://raw.githubusercontent.com/tanducmai/web-scraping-dictionary/main/video_production.mp4)
+module](https://raw.githubusercontent.com/tanducmai/web-scraping-dictionary/master/video_production.mp4)
 
 # Directory Structure
 
