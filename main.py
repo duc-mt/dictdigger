@@ -1,12 +1,16 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# =============================================================================
 #
-# File:         main.py
-# Author:       Tan Duc Mai
-# Email:        tan.duc.work@gmail.com
-# Date:         20-Aug-21
-# Description:  Retrieve the content of an online dictionary.
+#        FILE:  main.py
+#      AUTHOR:  Tan Duc Mai <henryfromvietnam@gmail.com>
+#     CREATED:  2021-08-20
+# DESCRIPTION:  Retrieve the content of Merriam-Webster online dictionary.
 #   I hereby declare that I completed this work without any improper help
 #   from a third party and without using any aids other than those cited.
 #
+# =============================================================================
 
 
 # ------------------------------- Module Imports ------------------------------
