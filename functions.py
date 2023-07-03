@@ -13,19 +13,19 @@
 # =============================================================================
 
 
-# ------------------------------- Module Imports ------------------------------
+# ------------------------------- Module Import -------------------------------
 """
-The time module - sleep() function - gives a short break (0.5 to 1 second)
-between each major part of the program.
+The time module - sleep() function - gives a short break (0.5 second) between
+each major part of the program.
 """
-from time import sleep as take_a_break
+from time import sleep
 
 
 # ---------------------------- Function Definitions ---------------------------
 def draw_a_line():
     """Draw a line break."""
     print('\n', '-' * 71, '\n')
-    take_a_break(1)
+    sleep(0.5)
 
 
 def find_all_definitions(count, definition):

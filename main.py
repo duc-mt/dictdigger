@@ -36,7 +36,7 @@ functions which I separate from the main program to improve code legibility and
 code reuse.
 """
 # Standard library imports.
-from time import sleep as take_a_break
+from time import sleep
 from urllib.request import urlretrieve
 
 # Related third party imports.
@@ -114,7 +114,7 @@ if __name__ == '__main__':
         except AttributeError:
             print(': LAST ENTRY FOUND!')
 
-    take_a_break(1)
+    sleep(0.5)
 
     # MP3: the pronunciation file.
     func.draw_a_line()
@@ -154,7 +154,7 @@ if __name__ == '__main__':
             f'Sorry! There isn\'t a pre-recorded pronunciation for "{word}".'
         )
 
-    take_a_break(1)
+    sleep(0.5)
 
     # Close the program.
     func.draw_a_line()
