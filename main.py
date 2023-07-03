@@ -12,26 +12,22 @@
 # ------------------------------- Module Imports ------------------------------
 """Description of all imported modules.
 
-The time module has the sleep() function which is used to give a short break
-(0.5 to 1 second) between each major part of the program.
+The time module - sleep() function - gives a short break (0.5 to 1 second)
+between each major part of the program.
 
-The urllib.request module has the function which retrieves the content
-of a URL directly into a local location on disk.
-It is installed by default with Python 3.10 which I am using.
+The urllib.request module - urlretrieve - retrieves the content of a URL
+directly into a local location on disk.
 
-The requests module allows for the exchange of HTTP requests.
-It requires pre-installation –> pip install requests
+The bs4 module - BeautifulSoup() function - downloads data of HTML files from
+the website.
 
-The bs4 module has the BeautifulSoup() function which downloads data of HTML
-files from the website.
-It requires pre-installation –> pip install bs4
-
-The pygame.mixer is a module which loads and plays sound or the mp3 file.
+The pygame module - mixer() function - loads and plays sound or the mp3 file.
 This is what I use to play the pronunciation file downloaded by using the
 urlretrieve() function.
-It also requires pre-installation –> pip install pygame
 
-The functions module is a user-defined module that contains a set of three
+The requests module allows for the exchange of HTTP requests.
+
+The functions module - a user-defined module - contains a set of three
 functions which I separate from the main program to improve code legibility and
 code reuse.
 """
@@ -41,12 +37,11 @@ from urllib.request import urlretrieve
 
 # Related third party imports.
 from bs4 import BeautifulSoup
-
-import functions as func
-
 from pygame import mixer
-
 import requests
+
+# Local application/library specific imports.
+import functions as func
 
 
 # ------------------------------- Main Function -------------------------------

@@ -10,10 +10,9 @@
 
 
 # ------------------------------- Module Imports ------------------------------
-"""Description of all imported modules.
-
-The time module has the sleep() function which is used to give a short break
-(0.5 to 1 second) between each major part of the program.
+"""
+The time module - sleep() function - gives a short break (0.5 to 1 second)
+between each major part of the program.
 """
 from time import sleep as take_a_break
 

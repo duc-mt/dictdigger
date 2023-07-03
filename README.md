@@ -27,20 +27,16 @@ the user to download in order to run the program.
 1. urllib.request – defines functions and classes which help in opening URLs.
     - Its urlretrieve() function is used to retrieve the content of a URL
       directly into a local location on disk.
-    - It is installed by default with Python 3.10 which I am using.
 1. bs4 – its BeautifulSoup() function is used to pull data out of HTML files of
 the website.
-    - It requires pre-installation –> pip install bs4
-1. functions - this is a user-defined module that contains a set of three
-functions which I separate from the main program to improve code legibility and
-code reuse.
 1. pygame – its mixer() function is used to play the mp3 file (pronunciation
 file).
     - This is what I use to play the pronunciation file downloaded by using the
       urlretrieve() function.
-    - It also requires pre-installation –> pip install pygame
 1. requests - allows for the exchange of HTTP requests.
-    - It requires pre-installation –> pip install requests
+1. functions - this is a user-defined module that contains a set of three
+   functions which I separate from the main program to improve code legibility
+   and code reuse.
 
 The module that I frequently use is the time module to make a short pause after
 each section (define, pronounce, etc.), usually from 0.5 to 1 seconds.
