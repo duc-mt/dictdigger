@@ -22,21 +22,20 @@ retrieve the pronunciation from the dictionary and play it if the user asks for.
 Throughout the project, I will use six Python modules, two of which will require
 the user to download in order to run the program.
 
-1. time - its sleep() function is used to give a short break (0.5 to 1 second)
-   between each major part of the program.
+1. time - its sleep() function gives a short break (0.5 second) between each
+   major part of the program.
 1. urllib.request – defines functions and classes which help in opening URLs.
     - Its urlretrieve() function is used to retrieve the content of a URL
       directly into a local location on disk.
-1. bs4 – its BeautifulSoup() function is used to pull data out of HTML files of
-the website.
-1. pygame – its mixer() function is used to play the mp3 file (pronunciation
-file).
+1. bs4 – its BeautifulSoup() function pulls data out of HTML files of the
+website.
+1. pygame – its mixer() function plays the mp3 file (pronunciation file).
     - This is what I use to play the pronunciation file downloaded by using the
       urlretrieve() function.
-1. requests - allows for the exchange of HTTP requests.
+1. requests - its get() function allows for the exchange of HTTP requests.
 1. functions - this is a user-defined module that contains a set of three
-   functions which I separate from the main program to improve code legibility
-   and code reuse.
+functions which I separate from the main program to improve code legibility and
+code reuse.
 
 The module that I frequently use is the time module to make a short pause after
 each section (define, pronounce, etc.), usually from 0.5 to 1 seconds.
@@ -45,8 +44,8 @@ To make the program more like a dictionary, before getting into any definition,
 I make a welcome statement and show the top lookup today. I get the URL of the
 website, then use the requests and bs4 module to extract the HTML data from the
 page. Then, I search through the HTML data to find the *a* tag which contains
-the information /word-of-the-day. Since the one I want to find is the fourth
-*a* tag containing the information /word-of-the-day, I use the *find_next()*
+the information /word-of-the-day. Since the one I want to find is the fourth *a*
+tag containing the information /word-of-the-day, I use the *find_next()*
 function three times to find it. Lastly, I use the *get_text()* function to get
 the actual information without any HTML – which is the word of the day I am
 looking for.

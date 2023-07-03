@@ -16,8 +16,8 @@
 # ------------------------------- Module Imports ------------------------------
 """Description of all imported modules.
 
-The time module - sleep() function - gives a short break (0.5 to 1 second)
-between each major part of the program.
+The time module - sleep() function - gives a short break (0.5 second) between
+each major part of the program.
 
 The urllib.request module - urlretrieve - retrieves the content of a URL
 directly into a local location on disk.
@@ -29,7 +29,8 @@ The pygame module - mixer() function - loads and plays sound or the mp3 file.
 This is what I use to play the pronunciation file downloaded by using the
 urlretrieve() function.
 
-The requests module allows for the exchange of HTTP requests.
+The requests module - get() function - allows for the exchange of HTTP
+requests.
 
 The functions module - a user-defined module - contains a set of three
 functions which I separate from the main program to improve code legibility and
@@ -42,7 +43,7 @@ from urllib.request import urlretrieve
 # Related third party imports.
 from bs4 import BeautifulSoup
 from pygame import mixer
-import requests
+from requests import get
 
 # Local application/library specific imports.
 import functions as func
@@ -57,7 +58,7 @@ if __name__ == '__main__':
 
     # Word of the Day.
     url = 'https://www.merriam-webster.com/dictionary'
-    res = requests.get(url)
+    res = get(url)
     text = res.text
     soup = BeautifulSoup(res.content, 'html.parser')
 
@@ -76,7 +77,7 @@ if __name__ == '__main__':
 
     # Connect to the dictionary.
     url = f'https://www.merriam-webster.com/dictionary/{word}'
-    res = requests.get(url)
+    res = get(url)
     text = res.text
     soup = BeautifulSoup(res.content, 'html.parser')
 
@@ -90,7 +91,7 @@ if __name__ == '__main__':
             if word == '':
                 print('Please Enter a non-empty word.', end='\n\n')
         url = f'https://www.merriam-webster.com/dictionary/{word}'
-        res = requests.get(url)
+        res = get(url)
         text = res.text
         soup = BeautifulSoup(res.content, 'html.parser')
 
