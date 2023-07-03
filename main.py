@@ -49,9 +49,8 @@ import functions as func
 
 
 # ------------------------------- Main Function -------------------------------
-def main():
-    """Only be invoked under the condition `if __name__ == '__main__':`."""
-    # Welcome message
+if __name__ == '__main__':
+    # Welcome message.
     func.draw_a_line()
     print('Welcome to the Dictionary of Merriam-Webster')
     func.draw_a_line()
@@ -161,8 +160,3 @@ def main():
     func.draw_a_line()
     print('Thank you for using our translation service!')
     func.draw_a_line()
-
-
-# --------------------------- Call the Main Function --------------------------
-if __name__ == '__main__':
-    main()
