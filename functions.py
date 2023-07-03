@@ -22,7 +22,7 @@ from time import sleep
 
 
 # ---------------------------- Function Definitions ---------------------------
-def draw_a_line():
+def draw_line_break():
     """Draw a line break."""
     print('\n', '-' * 71, '\n')
     sleep(0.5)

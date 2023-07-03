@@ -52,9 +52,9 @@ import functions as func
 # ------------------------------- Main Function -------------------------------
 if __name__ == '__main__':
     # Welcome message.
-    func.draw_a_line()
+    func.draw_line_break()
     print('Welcome to the Dictionary of Merriam-Webster')
-    func.draw_a_line()
+    func.draw_line_break()
 
     # Word of the Day.
     url = 'https://www.merriam-webster.com/dictionary'
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     print('Word of the Day:', day.get_text())
 
     # Look up a word.
-    func.draw_a_line()
+    func.draw_line_break()
     word = None
     while word is None or word == '':
         word = input('Search for a Word: ')
@@ -96,7 +96,7 @@ if __name__ == '__main__':
         soup = BeautifulSoup(res.content, 'html.parser')
 
     # Now we have a valid word.
-    func.draw_a_line()
+    func.draw_line_break()
 
     # Get the definition.
     # Count the number of definitions of the word.
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     sleep(0.5)
 
     # MP3: the pronunciation file.
-    func.draw_a_line()
+    func.draw_line_break()
 
     try:
         # Call the function to return the list of the elements of the URL of
@@ -158,6 +158,6 @@ if __name__ == '__main__':
     sleep(0.5)
 
     # Close the program.
-    func.draw_a_line()
+    func.draw_line_break()
     print('Thank you for using our translation service!')
-    func.draw_a_line()
+    func.draw_line_break()
