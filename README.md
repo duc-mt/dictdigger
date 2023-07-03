@@ -3,9 +3,10 @@
 <!-- vim-markdown-toc GFM -->
 
 1. [Aim](#aim)
+1. [Modules](#modules)
 1. [Implementation](#implementation)
 1. [Video Production](#video-production)
-1. [Directory Structure](#directory-structure)
+1. [Tree Structure](#tree-structure)
 
 <!-- vim-markdown-toc -->
 
@@ -17,7 +18,7 @@ Specifically, I will web scrap an online dictionary
 printing out the definition(s) as the user inputs a word. Moreover, I also
 retrieve the pronunciation from the dictionary and play it if the user asks for.
 
-# Implementation
+# Modules
 
 Throughout the project, I will use six Python modules, two of which will require
 the user to download in order to run the program.
@@ -37,8 +38,7 @@ website.
 functions which I separate from the main program to improve code legibility and
 code reuse.
 
-The module that I frequently use is the time module to make a short pause after
-each section (define, pronounce, etc.), usually from 0.5 to 1 seconds.
+# Implementation
 
 To make the program more like a dictionary, before getting into any definition,
 I make a welcome statement and show the top lookup today. I get the URL of the
@@ -92,7 +92,7 @@ The dictionary program culminates with a little thank you note.
 [Execute the **main**
 module](https://raw.githubusercontent.com/tanducmai/web-scraping-dictionary/master/video_production.mp4)
 
-# Directory Structure
+# Tree Structure
 
 ```
 .
