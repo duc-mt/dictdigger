@@ -1,14 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 # Table of Contents
 
-<!-- vim-markdown-toc GFM -->
+- [Aim](#aim)
+- [Modules](#modules)
+- [Implementation](#implementation)
+- [Video Production](#video-production)
+- [Tree Structure](#tree-structure)
 
-1. [Aim](#aim)
-1. [Modules](#modules)
-1. [Implementation](#implementation)
-1. [Video Production](#video-production)
-1. [Tree Structure](#tree-structure)
-
-<!-- vim-markdown-toc -->
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # Aim
 
