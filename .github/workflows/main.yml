@@ -7,4 +7,4 @@ on:
 jobs:
   sync:
     name: ⤵️ Run Python Codestyle Check
-    uses: tanducmai/dotfiles/.github/workflows/py-codestyle.yml@master
+    uses: duc-mt/dotfiles/.github/workflows/py-codestyle.yml@master
