@@ -12,152 +12,156 @@
 #
 # =============================================================================
 
-
 # ------------------------------- Module Imports ------------------------------
 """Description of all imported modules.
 
-The time module - sleep() function - gives a short break (0.5 second) between
-each major part of the program.
+The urllib.request module - urlretrieve() function - retrieves the content of
+a URL directly into a local location on disk. Used to download the
+pronunciation mp3.
 
-The urllib.request module - urlretrieve - retrieves the content of a URL
-directly into a local location on disk.
+The bs4 module - BeautifulSoup() class - parses the HTML of the website.
 
-The bs4 module - BeautifulSoup() function - downloads data of HTML files from
-the website.
+The pygame module - mixer submodule - loads and plays the downloaded
+pronunciation mp3 file.
 
-The pygame module - mixer() function - loads and plays sound or the mp3 file.
-This is what I use to play the pronunciation file downloaded by using the
-urlretrieve() function.
+The requests module - RequestException - is caught so that network problems
+produce a friendly message instead of a crash.
 
-The requests module - get() function - allows for the exchange of HTTP
-requests.
-
-The functions module - a user-defined module - contains a set of three
-functions which I separate from the main program to improve code legibility and
-code reuse.
+The functions module - a user-defined module - contains reusable helpers
+that are separated from the main program to improve legibility, reuse, and
+unit-testability.
 """
-# Standard library imports.
-from time import sleep
+from __future__ import annotations
+
+import sys
+from urllib.error import ContentTooShortError, URLError
 from urllib.request import urlretrieve
 
-# Related third party imports.
+import requests
 from bs4 import BeautifulSoup
 from pygame import mixer
-from requests import get
 
-# Local application/library specific imports.
 import functions as func
+
+ACCEPTABLE_RESPONSES = ("Y", "y", "N", "n", "")
+MP3_FILENAME = "word_to_pronounce.mp3"
+
+
+# ------------------------------ Input Helpers ---------------------------------
+def prompt_non_empty(prompt: str) -> str:
+    """Repeatedly ask the user for input until they provide a non-empty value."""
+    value = ""
+    while not value:
+        value = input(prompt).strip()
+        if not value:
+            print("Please Enter a non-empty word.", end="\n\n")
+    return value
+
+
+def prompt_yes_no(prompt: str) -> str:
+    """Ask a yes/no question, re-prompting until an acceptable answer is given."""
+    response = None
+    while response not in ACCEPTABLE_RESPONSES:
+        response = input(prompt)
+        if response not in ACCEPTABLE_RESPONSES:
+            print("Please Enter an appropriate command.", end="\n\n")
+    return response
+
+
+# ------------------------------- Program Steps --------------------------------
+def show_word_of_the_day() -> None:
+    """Print today's featured word. Prints a friendly message on failure
+    instead of crashing, since this is a non-essential nicety."""
+    try:
+        _, soup = func.fetch_page()
+        print("Word of the Day:", func.get_word_of_the_day(soup))
+    except (requests.exceptions.RequestException, ValueError) as exc:
+        print(f"(Could not retrieve the Word of the Day: {exc})")
+
+
+def look_up_word() -> tuple[str, str, BeautifulSoup]:
+    """Prompt for a word until a valid dictionary entry is fetched.
+
+    Returns:
+        The validated word, the raw page HTML, and the parsed page.
+    """
+    word = prompt_non_empty("Search for a Word: ")
+    while True:
+        try:
+            text, soup = func.fetch_page(word)
+        except requests.exceptions.RequestException as exc:
+            print(f"Network error while looking up '{word}': {exc}\n")
+            word = prompt_non_empty("Try again: ")
+            continue
+
+        if func.word_exists(text):
+            return word, text, soup
+
+        print(f"The word you've entered, \"{word}\", isn't in the dictionary.\n")
+        word = prompt_non_empty("Try again: ")
+
+
+def show_definition(word: str, soup: BeautifulSoup) -> None:
+    """Print the definition(s) of an already-validated word."""
+    print(f"-> Definition of {word.upper()}:", end="\n\n")
+    definitions = func.find_all_definitions(soup)
+    print(func.format_definitions(definitions))
+
+
+def offer_pronunciation(text: str) -> None:
+    """Offer to download and play the word's pronunciation, if available."""
+    try:
+        mp3_url = func.extract_mp3_url(text)
+    except ValueError as exc:
+        print(f"Sorry! {exc}.")
+        return
+
+    pronounce = prompt_yes_no("Do you want to hear its pronunciation? [Y/n] ")
+    if pronounce.lower() == "n":
+        return
+
+    try:
+        urlretrieve(mp3_url, MP3_FILENAME)
+    except (URLError, ContentTooShortError, OSError) as exc:
+        print(f"Could not download the pronunciation audio: {exc}")
+        return
+
+    mixer.init()
+    try:
+        while pronounce == "" or pronounce.lower() == "y":
+            mixer.music.load(MP3_FILENAME)
+            mixer.music.play()
+            pronounce = prompt_yes_no("One more time? [Y/n] ")
+    finally:
+        mixer.quit()
 
 
 # ------------------------------- Main Function -------------------------------
-if __name__ == '__main__':
-    # Welcome message.
+def main() -> int:
     func.draw_line_break()
-    print('Welcome to the Dictionary of Merriam-Webster')
-    func.draw_line_break()
-
-    # Word of the Day.
-    url = 'https://www.merriam-webster.com/dictionary'
-    res = get(url)
-    text = res.text
-    soup = BeautifulSoup(res.content, 'html.parser')
-
-    day = soup.find('a', attrs={'href': '/word-of-the-day'})
-    for _ in range(2):
-        day = day.find_next('a', attrs={'href': '/word-of-the-day'})
-    print('Word of the Day:', day.get_text())
-
-    # Look up a word.
-    func.draw_line_break()
-    word = None
-    while word is None or word == '':
-        word = input('Search for a Word: ')
-        if word == '':
-            print('Please Enter a non-empty word.', end='\n\n')
-
-    # Connect to the dictionary.
-    url = f'https://www.merriam-webster.com/dictionary/{word}'
-    res = get(url)
-    text = res.text
-    soup = BeautifulSoup(res.content, 'html.parser')
-
-    # Validate word that is not in the dictionary.
-    false_message = "isn't in the dictionary"
-    while false_message in text:
-        print(f'The word you\'ve entered, "{word}", {false_message}.\n')
-        word = None
-        while word is None or word == '':
-            word = input('Try again: ')
-            if word == '':
-                print('Please Enter a non-empty word.', end='\n\n')
-        url = f'https://www.merriam-webster.com/dictionary/{word}'
-        res = get(url)
-        text = res.text
-        soup = BeautifulSoup(res.content, 'html.parser')
-
-    # Now we have a valid word.
+    print("Welcome to the Dictionary of Merriam-Webster")
     func.draw_line_break()
 
-    # Get the definition.
-    # Count the number of definitions of the word.
-    count = text.count('dtText')
+    show_word_of_the_day()
 
-    print(f'-> Definition of {word.upper()}:', end='\n\n')
-
-    if count == 1:                  # If the word has only 1 definition
-        definition = soup.find('span', class_='dtText')
-        print(definition.get_text())
-    else:                           # If the word has more than 1 definitions
-        try:
-            definition = soup.find('span', class_='dtText')
-            print('Entry 1', definition.get_text(), sep='')
-            func.find_all_definitions(count, definition)
-        except AttributeError:
-            print(': LAST ENTRY FOUND!')
-
-    sleep(0.5)
-
-    # MP3: the pronunciation file.
     func.draw_line_break()
+    word, text, soup = look_up_word()
 
+    func.draw_line_break()
+    show_definition(word, soup)
+
+    func.draw_line_break()
+    offer_pronunciation(text)
+
+    func.draw_line_break()
+    print("Thank you for using our translation service!")
+    func.draw_line_break()
+    return 0
+
+
+if __name__ == "__main__":
     try:
-        # Call the function to return the list of the elements of the URL of
-        # the mp3 file for pronouncing.
-        url = func.mp3(text)
-
-        # Convert the mp3_url from a list into a string.
-        mp3_url = ''.join(url)
-
-        # Ask the user whether they want to hear the pronunciation.
-        acceptable_response = ('Y', 'y', 'N', 'n', '')
-        pronounce = None
-        while pronounce is None or pronounce not in acceptable_response:
-            pronounce = input('Do you want to hear its pronunciation? [Y/n] ')
-            if pronounce not in acceptable_response:
-                print('Please Enter an appropriate command.', end='\n\n')
-
-        # Download the mp3 file to the local directory.
-        urlretrieve(mp3_url, 'word_to_pronounce.mp3')
-
-        # Repeatedly pronounce the word if user responds 'y' or presses Enter.
-        while pronounce.lower() == 'y' or pronounce == '':
-            mixer.init()
-            mixer.music.load('word_to_pronounce.mp3')
-            mixer.music.play()
-            # Ask the user again.
-            pronounce = None
-            while pronounce is None or pronounce not in acceptable_response:
-                pronounce = input('One more time? [Y/n] ')
-                if pronounce not in acceptable_response:
-                    print('Please Enter an appropriate command.', end='\n\n')
-    except ValueError:
-        print(
-            f'Sorry! There isn\'t a pre-recorded pronunciation for "{word}".'
-        )
-
-    sleep(0.5)
-
-    # Close the program.
-    func.draw_line_break()
-    print('Thank you for using our translation service!')
-    func.draw_line_break()
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print("\nGoodbye!")
+        sys.exit(130)
