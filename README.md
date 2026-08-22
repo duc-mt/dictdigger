@@ -5,6 +5,10 @@
 - [Aim](#aim)
 - [Modules](#modules)
 - [Implementation](#implementation)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Development](#development)
 - [Video Production](#video-production)
 - [Tree Structure](#tree-structure)
 
@@ -87,6 +91,50 @@ user.
 
 The dictionary program culminates with a little thank you note.
 
+# Installation
+
+```bash
+git clone https://github.com/tanducmai/web-scraping-dictionary.git
+cd web-scraping-dictionary
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+# Usage
+
+```bash
+python3 main.py
+```
+
+You'll see today's Word of the Day, then be prompted to look up a word. If a
+pronunciation recording is available, you can choose to play it.
+
+# Testing
+
+Install the development dependencies (this includes the runtime ones) and run
+the test suite:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+Tests never contact the real Merriam-Webster website — all HTTP calls are
+mocked — so they run quickly and deterministically. `ruff`, `black --check`,
+and `mypy` are also available for linting, formatting, and type checking.
+
+# Development
+
+CI runs on every pull request and push via GitHub Actions
+(`.github/workflows/ci.yml`): linting, formatting, type checking, tests
+across Python 3.10-3.12, and a dependency vulnerability scan. A weekly
+CodeQL scan and Dependabot are also configured.
+
+**A note on scraping:** this project fetches pages from
+merriam-webster.com for personal/educational use. Please review the site's
+terms of service before deploying it at any scale or frequency beyond
+occasional personal lookups.
+
 # Video Production
 
 [Execute the **main**
@@ -96,11 +144,20 @@ module](https://raw.githubusercontent.com/tanducmai/web-scraping-dictionary/mast
 
 ```
 .
+├── .github/
+│   ├── dependabot.yml
+│   └── workflows/
+│       ├── ci.yml
+│       └── codeql.yml
+├── tests/
+│   ├── test_functions.py
+│   └── test_main.py
+├── LICENSE
 ├── README.md
 ├── functions.py
 ├── main.py
+├── pyproject.toml
+├── requirements-dev.txt
 ├── requirements.txt
 └── video_production.mp4
-
-0 directories, 5 files
 ```

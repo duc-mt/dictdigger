@@ -1,0 +1,31 @@
+[project]
+name = "dictionary-web-scraping-machine"
+version = "1.0.0"
+description = "CLI dictionary that scrapes definitions and pronunciations from Merriam-Webster."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Tan Duc Mai", email = "henryfromvietnam@gmail.com" }]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+# UP009: keep the traditional `# -*- coding: utf-8 -*-` header used across
+# this project's file banners; it's harmless and consistent with house style.
+ignore = ["UP009"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_ignores = true
+warn_redundant_casts = true
+check_untyped_defs = true
+
+[tool.pytest.ini_options]
+addopts = "--cov=functions --cov=main --cov-report=term-missing"
+testpaths = ["tests"]
