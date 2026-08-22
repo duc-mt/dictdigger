@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "CLI dictionary that scrapes definitions and pronunciations from Merriam-Webster."
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "Tan Duc Mai", email = "henryfromvietnam@gmail.com" }]
+authors = [{ name = "Mai Tan Duc", email = "ducmai.network@gmail.com" }]
 
 [tool.black]
 line-length = 88
