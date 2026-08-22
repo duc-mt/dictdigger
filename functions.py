@@ -4,7 +4,7 @@
 # =============================================================================
 #
 #        FILE:  functions.py
-#      AUTHOR:  Tan Duc Mai <henryfromvietnam@gmail.com>
+#      AUTHOR:  Mai Tan Duc <ducmai.network@gmail.com>
 #     CREATED:  2021-08-20
 # DESCRIPTION:  Reusable helpers for retrieving and parsing Merriam-Webster
 #               dictionary pages. Kept separate from main.py to improve

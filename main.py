@@ -4,7 +4,7 @@
 # =============================================================================
 #
 #        FILE:  main.py
-#      AUTHOR:  Tan Duc Mai <henryfromvietnam@gmail.com>
+#      AUTHOR:  Mai Tan Duc <ducmai.network@gmail.com>
 #     CREATED:  2021-08-20
 # DESCRIPTION:  Retrieve the content of Merriam-Webster online dictionary.
 #   I hereby declare that I completed this work without any improper help
