@@ -10,7 +10,6 @@
 - [Command-Line Mode](#command-line-mode)
 - [Testing](#testing)
 - [Development](#development)
-- [Video Production](#video-production)
 - [Tree Structure](#tree-structure)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
