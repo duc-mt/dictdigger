@@ -61,3 +61,66 @@ jobs:
           files: |
             dictionary-web-scraping-machine-${{ github.ref_name }}.zip
             sbom.cdx.json
+name: 🚀 Release
+
+# Push a tag such as v1.1.0 to publish a GitHub release. The tag must match
+# `version` in pyproject.toml, the tests must pass, and the release carries a
+# source archive plus a CycloneDX SBOM of the runtime dependencies.
+
+on:
+  push:
+    tags: ["v[0-9]+.[0-9]+.[0-9]+"]
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: ⤵️ Test, package & publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write # create the release and upload its assets
+    env:
+      SDL_AUDIODRIVER: dummy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Check the tag matches pyproject.toml
+        run: |
+          version=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match pyproject.toml version ${version}"
+            exit 1
+          fi
+
+      - run: pip install -r requirements-dev.txt
+      - run: pytest
+
+      - name: Build the source archive
+        run: |
+          git archive --format=zip \
+            --prefix="dictionary-web-scraping-machine-${GITHUB_REF_NAME}/" \
+            --output="dictionary-web-scraping-machine-${GITHUB_REF_NAME}.zip" \
+            "${GITHUB_REF_NAME}"
+
+      - name: Generate the SBOM (CycloneDX)
+        run: |
+          # Two throw-away environments: one holding only the runtime
+          # dependencies (what gets described), one holding the SBOM tool.
+          python -m venv "$RUNNER_TEMP/sbom-env" "$RUNNER_TEMP/sbom-tools"
+          "$RUNNER_TEMP/sbom-env/bin/pip" install --quiet -r requirements.txt
+          "$RUNNER_TEMP/sbom-tools/bin/pip" install --quiet cyclonedx-bom
+          "$RUNNER_TEMP/sbom-tools/bin/cyclonedx-py" environment \
+            "$RUNNER_TEMP/sbom-env" --of JSON -o sbom.cdx.json
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          generate_release_notes: true
+          files: |
+            dictionary-web-scraping-machine-${{ github.ref_name }}.zip
+            sbom.cdx.json
