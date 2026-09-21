@@ -10,7 +10,6 @@
 - [Command-Line Mode](#command-line-mode)
 - [Testing](#testing)
 - [Development](#development)
-- [Video Production](#video-production)
 - [Tree Structure](#tree-structure)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -270,11 +269,6 @@ current.
 merriam-webster.com for personal/educational use. Please review the site's
 terms of service before deploying it at any scale or frequency beyond
 occasional personal lookups.
-
-# Video Production
-
-[Execute the **main**
-module](https://raw.githubusercontent.com/tanducmai/web-scraping-dictionary/master/video_production.mp4)
 
 # Tree Structure
 
