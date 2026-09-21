@@ -1,3 +1,3 @@
 beautifulsoup4==4.15.0
-pygame==2.6.1
+pygame==2.6.1; python_version < "3.14"  # audio only; no 3.14 wheels yet
 requests==2.34.2
