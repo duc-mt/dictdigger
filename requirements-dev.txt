@@ -1,8 +1,8 @@
 -r requirements.txt
 pytest==8.3.5
 pytest-cov==6.0.0
-ruff==0.9.6
+ruff==0.16.8
 black==25.1.0
 mypy==1.15.0
-types-requests==2.32.0.20250306
-pip-audit==2.7.3
+types-requests==2.33.0.20260906
+pip-audit==2.10.1
