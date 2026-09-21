@@ -1,26 +1,2 @@
-# Python
 __pycache__/
-*.py[cod]
-.venv/
-venv/
-
-# Test, lint and type-check caches and reports
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-coverage.xml
-htmlcov/
-
-# Personal runtime data: the lookup history and the local page cache
-word_history.json
-word_history.json.corrupt-*
-.cache/
-
-# Downloaded pronunciation audio
 *.mp3
-
-# Editors and operating systems
-.idea/
-.vscode/
-.DS_Store
