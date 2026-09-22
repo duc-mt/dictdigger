@@ -17,7 +17,8 @@ from __future__ import annotations
 import logging
 import os
 import re
-from collections.abc import Callable, Iterable, Mapping, Sequence
+import threading
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from http import HTTPStatus
 from pathlib import Path
@@ -41,7 +42,7 @@ DEFAULT_REQUEST_DELAY = 0.5  # seconds between network requests
 # identify the tool honestly, in the form browsers and well-behaved bots use.
 DEFAULT_USER_AGENT = (
     "Mozilla/5.0 (compatible; dictionary-web-scraping-machine/1.0; "
-    "+https://github.com/tanducmai/web-scraping-dictionary)"
+    "+https://github.com/duc-mt/web-scraping-dictionary)"
 )
 USER_AGENT_ENV_VAR = "DICTIONARY_USER_AGENT"
 
@@ -73,22 +74,13 @@ class Entry:
     audio_url: str | None = None
 
 
-# A callable that looks a word up and returns its parsed entry: the scraper
-# (``lookup_word``) or the official API (``dictionary_api.lookup_word``), each
-# with its cache and rate limiter already bound.
+# A callable that looks a word up and returns its parsed entry: ``lookup_word``
+# with its fetcher (cache and rate limiter included) already bound.
 Lookup = Callable[[str], Entry]
 
 
 class WordNotFoundError(LookupError):
-    """Raised when the dictionary has no entry for the requested word.
-
-    Attributes:
-        suggestions: Spelling suggestions, when the source offers any.
-    """
-
-    def __init__(self, word: str, suggestions: Sequence[str] = ()) -> None:
-        super().__init__(word)
-        self.suggestions = tuple(suggestions)
+    """Raised when the dictionary has no entry for the requested word."""
 
 
 def request_headers() -> dict[str, str]:
@@ -102,6 +94,9 @@ def request_headers() -> dict[str, str]:
 
 class RateLimiter:
     """Enforce a minimum pause between consecutive network requests.
+
+    Thread-safe: concurrent callers (the web interface serves each request in
+    its own thread) are queued, so requests stay spaced out.
 
     Args:
         min_interval: Seconds that must separate two calls to ``wait``.
@@ -121,14 +116,16 @@ class RateLimiter:
         self._clock = clock or monotonic
         self._pause = pause or sleep
         self._last_request: float | None = None
+        self._lock = threading.Lock()
 
     def wait(self) -> None:
         """Block until enough time has passed since the previous request."""
-        if self._last_request is not None:
-            remaining = self._min_interval - (self._clock() - self._last_request)
-            if remaining > 0:
-                self._pause(remaining)
-        self._last_request = self._clock()
+        with self._lock:
+            if self._last_request is not None:
+                remaining = self._min_interval - (self._clock() - self._last_request)
+                if remaining > 0:
+                    self._pause(remaining)
+            self._last_request = self._clock()
 
 
 def draw_line_break() -> None:
@@ -138,7 +135,7 @@ def draw_line_break() -> None:
 
 
 def fetch_page(
-    word: str | None = None,
+    word: str,
     *,
     timeout: int = REQUEST_TIMEOUT,
     cache: PageCache | None = None,
@@ -148,12 +145,10 @@ def fetch_page(
     """Fetch a Merriam-Webster dictionary page.
 
     Args:
-        word: The word to look up. If ``None``, fetches the dictionary
-            homepage instead (used for the Word of the Day).
+        word: The word to look up.
         timeout: Seconds to wait for a server response before giving up.
         cache: Optional page cache consulted before, and filled after, a
-            network request. Only word pages are cached; the homepage
-            changes daily and is always fetched.
+            network request.
         limiter: Optional rate limiter consulted before each network
             request. Cache hits never wait.
         headers: Request headers; defaults to ``request_headers()``.
@@ -165,7 +160,7 @@ def fetch_page(
         requests.exceptions.RequestException: On network failure, timeout,
             or a non-2xx HTTP response.
     """
-    if word and cache is not None:
+    if cache is not None:
         cached = cache.get(word)
         if cached is not None:
             logger.info("cache hit for %r", word)
@@ -173,32 +168,15 @@ def fetch_page(
         logger.info("cache miss for %r", word)
 
     # safe="" also escapes "/", so a word can never add path segments.
-    url = f"{DICTIONARY_URL}/{quote(word, safe='')}" if word else DICTIONARY_URL
+    url = f"{DICTIONARY_URL}/{quote(word, safe='')}"
     if limiter is not None:
         limiter.wait()
     logger.debug("GET %s", url)
     response = requests.get(url, timeout=timeout, headers=headers or request_headers())
     response.raise_for_status()
-    if word and cache is not None:
+    if cache is not None:
         cache.set(word, response.text)
     return response.text, BeautifulSoup(response.content, "html.parser")
-
-
-def get_word_of_the_day(soup: BeautifulSoup) -> str:
-    """Extract today's featured word from the dictionary homepage.
-
-    Raises:
-        ValueError: If the Word of the Day link cannot be located, e.g.
-            because the page layout has changed.
-    """
-    anchor = soup.find("a", attrs={"href": "/word-of-the-day"})
-    for _ in range(2):
-        if anchor is None:
-            break
-        anchor = anchor.find_next("a", attrs={"href": "/word-of-the-day"})
-    if anchor is None:
-        raise ValueError("could not locate the Word of the Day on the homepage")
-    return anchor.get_text()
 
 
 def word_exists(page_text: str) -> bool:
@@ -254,10 +232,18 @@ def extract_mp3_url(page_text: str) -> str:
 
 def http_status(exc: requests.exceptions.RequestException) -> int | None:
     """Return the HTTP status behind a request error, if there is one."""
-    status = getattr(exc, "status_code", None)  # set by dictionary_api.ApiError
-    if isinstance(status, int):
-        return status
     return exc.response.status_code if exc.response is not None else None
+
+
+def describe_network_error(exc: requests.exceptions.RequestException) -> str:
+    """Explain a failed request; an HTTP 403 gets a hint."""
+    message = str(exc)
+    if http_status(exc) == 403:
+        message += (
+            "\n  Hint: the website refused the request. It sometimes blocks "
+            "scripted requests; wait a while and try again."
+        )
+    return message
 
 
 def is_not_found_error(exc: requests.exceptions.RequestException) -> bool:

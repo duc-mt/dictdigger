@@ -7,6 +7,8 @@ in CI.
 
 from __future__ import annotations
 
+import threading
+import time
 from pathlib import Path
 
 import pytest
@@ -14,15 +16,6 @@ import requests
 from bs4 import BeautifulSoup
 
 import functions as func
-
-HOMEPAGE_HTML = """
-<html><body>
-  <a href="/other-link">skip me</a>
-  <a href="/word-of-the-day">placeholder 1</a>
-  <a href="/word-of-the-day">placeholder 2</a>
-  <a href="/word-of-the-day">ephemeral</a>
-</body></html>
-"""
 
 SINGLE_DEFINITION_HTML = """
 <html><body>
@@ -96,26 +89,6 @@ class TestFetchPage:
 
         assert captured_urls == [f"{func.DICTIONARY_URL}/ice%20cream"]
 
-    def test_fetches_homepage_when_word_is_none(self, monkeypatch):
-        captured_urls = []
-
-        class FakeResponse:
-            text = HOMEPAGE_HTML
-            content = HOMEPAGE_HTML.encode()
-
-            def raise_for_status(self):
-                return None
-
-        monkeypatch.setattr(
-            requests,
-            "get",
-            lambda url, timeout, **_kw: captured_urls.append(url) or FakeResponse(),
-        )
-
-        func.fetch_page()
-
-        assert captured_urls == [func.DICTIONARY_URL]
-
     def test_propagates_request_exceptions(self, monkeypatch):
         def fake_get(url, timeout, **_kwargs):
             raise requests.exceptions.ConnectionError("boom")
@@ -134,22 +107,6 @@ class TestFetchPage:
 
         with pytest.raises(requests.exceptions.HTTPError):
             func.fetch_page("word")
-
-
-class TestGetWordOfTheDay:
-    def test_finds_the_fourth_matching_anchor(self):
-        soup = BeautifulSoup(HOMEPAGE_HTML, "html.parser")
-        assert func.get_word_of_the_day(soup) == "ephemeral"
-
-    def test_raises_value_error_when_layout_changed(self):
-        soup = BeautifulSoup("<html><body>nothing</body></html>", "html.parser")
-        with pytest.raises(ValueError):
-            func.get_word_of_the_day(soup)
-
-    def test_raises_value_error_when_fewer_than_three_anchors(self):
-        soup = BeautifulSoup('<a href="/word-of-the-day">only one</a>', "html.parser")
-        with pytest.raises(ValueError):
-            func.get_word_of_the_day(soup)
 
 
 class TestWordExists:
@@ -288,15 +245,6 @@ class TestFetchPageCaching:
         func.fetch_page("word", cache=cache)
 
         assert cache.sets == [("word", SINGLE_DEFINITION_HTML)]
-
-    def test_the_homepage_is_never_cached(self, monkeypatch):
-        monkeypatch.setattr(requests, "get", lambda url, timeout, **_kw: FakePage())
-        cache = FakeCache()
-
-        func.fetch_page(cache=cache)
-
-        assert cache.gets == []
-        assert cache.sets == []
 
     def test_failed_requests_are_not_cached(self, monkeypatch):
         def fake_get(url, timeout, **_kwargs):
@@ -690,16 +638,6 @@ class TestRequestHeaders:
 
         assert seen["headers"] == {"User-Agent": "explicit/1"}
 
-    def test_the_homepage_request_sends_it_too(self, monkeypatch):
-        seen: dict = {}
-        monkeypatch.setattr(
-            requests, "get", lambda url, timeout, **kw: seen.update(kw) or FakePage()
-        )
-
-        func.fetch_page()
-
-        assert "User-Agent" in seen["headers"]
-
     def test_download_audio_sends_the_user_agent(self, monkeypatch, tmp_path):
         monkeypatch.delenv(func.USER_AGENT_ENV_VAR, raising=False)
         seen: dict = {}
@@ -713,3 +651,42 @@ class TestRequestHeaders:
         func.download_audio("https://x/a.mp3", tmp_path / "clip.mp3")
 
         assert seen["headers"] == {"User-Agent": func.DEFAULT_USER_AGENT}
+
+
+class TestDescribeNetworkError:
+    def test_plain_errors_are_passed_through(self):
+        message = func.describe_network_error(requests.exceptions.Timeout("slow"))
+        assert message == "slow"
+
+    def test_http_403_gets_a_hint(self):
+        message = func.describe_network_error(make_http_error(403))
+        assert "403 error" in message
+        assert "refused the request" in message
+
+    def test_other_statuses_get_no_hint(self):
+        message = func.describe_network_error(make_http_error(500))
+        assert "Hint" not in message
+
+
+class TestRateLimiterThreads:
+    def test_simultaneous_callers_are_queued_not_released_together(self):
+        """The web interface calls the limiter from one thread per visitor."""
+        interval = 0.05
+        limiter = func.RateLimiter(interval)
+        start = threading.Barrier(6)
+        finished: list[float] = []
+
+        def visit() -> None:
+            start.wait()
+            limiter.wait()
+            finished.append(time.monotonic())
+
+        threads = [threading.Thread(target=visit) for _ in range(6)]
+        began = time.monotonic()
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=10)
+
+        # Five of the six had to wait for their turn, one interval apiece.
+        assert max(finished) - began >= 5 * interval * 0.9

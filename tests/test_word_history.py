@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 import json
+import threading
+import time
 from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from word_history import HISTORY_FILENAME, HistoryRecord, WordHistory
+from word_history import (
+    HISTORY_FILENAME,
+    HistoryRecord,
+    WordHistory,
+    record_history,
+)
 
 
 class FakeClock:
@@ -122,3 +129,49 @@ class TestCorruptFileRecovery:
         (backup,) = history.path.parent.glob(f"{HISTORY_FILENAME}.corrupt-*")
         assert backup.read_bytes() == content
         assert [r.word for r in history.read()] == ["fresh"]
+
+
+class TestThreads:
+    def test_records_from_many_threads_are_all_kept(self, tmp_path):
+        """The web interface records from one thread per visitor."""
+
+        def slow_clock() -> datetime:
+            time.sleep(0.002)  # widen the window in which a race would lose entries
+            return datetime(2026, 9, 21, tzinfo=timezone.utc)
+
+        log = WordHistory(tmp_path / HISTORY_FILENAME, clock=slow_clock)
+        start = threading.Barrier(16)
+
+        def record(number: int) -> None:
+            start.wait()
+            log.record(f"word{number}")
+
+        threads = [threading.Thread(target=record, args=(n,)) for n in range(16)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=20)
+
+        assert sorted(r.word for r in log.read()) == sorted(
+            f"word{n}" for n in range(16)
+        )
+        json.loads((tmp_path / HISTORY_FILENAME).read_text(encoding="utf-8"))
+
+
+class TestRecordHistory:
+    def test_does_nothing_without_a_history(self):
+        record_history(None, "word", found=True)  # must not raise
+
+    def test_records_when_a_history_is_given(self, history):
+        record_history(history, "word", found=False)
+        assert [(r.word, r.found) for r in history.read()] == [("word", False)]
+
+    def test_a_write_failure_only_warns(self, history, monkeypatch, caplog):
+        def boom(word, *, found=True):
+            raise OSError("read-only file system")
+
+        monkeypatch.setattr(history, "record", boom)
+
+        record_history(history, "word", found=True)  # must not raise
+
+        assert "could not update the word history" in caplog.text

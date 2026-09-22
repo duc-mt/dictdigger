@@ -7,6 +7,8 @@
 #      AUTHOR:  Mai Tan Duc <ducmai.network@gmail.com>
 #     CREATED:  2021-08-20
 # DESCRIPTION:  Retrieve the content of Merriam-Webster online dictionary.
+#   I hereby declare that I completed this work without any improper help
+#   from a third party and without using any aids other than those cited.
 #
 # =============================================================================
 
@@ -27,10 +29,6 @@ plain lookups do not need it.
 The requests module - RequestException - is caught so that network problems
 produce a friendly message instead of a crash.
 
-The dictionary_api module - a user-defined module - looks words up through
-the official Merriam-Webster API, which is the way in when the website itself
-refuses scripted requests.
-
 The functions module - a user-defined module - contains reusable helpers
 that are separated from the main program to improve legibility, reuse, and
 unit-testability. The page_cache, word_history, and exporters modules follow
@@ -47,6 +45,7 @@ import math
 import os
 import sys
 import tempfile
+import webbrowser
 from collections.abc import Sequence
 from dataclasses import asdict
 from pathlib import Path
@@ -55,20 +54,21 @@ from types import ModuleType
 
 import requests
 
-import dictionary_api
 import exporters
 import functions as func
+import web_server
 from page_cache import DEFAULT_TTL_SECONDS, HtmlCache
-from word_history import HISTORY_FILENAME, WordHistory
+from word_history import HISTORY_FILENAME, WordHistory, record_history
 
 logger = logging.getLogger(__name__)
 
 ACCEPTABLE_RESPONSES = ("Y", "y", "N", "n", "")
 MP3_FILENAME = "word_to_pronounce.mp3"
 CACHE_DIRNAME = ".cache"
-SOURCES = ("auto", "web", "api")
 DATA_DIR_ENV_VAR = "DICTIONARY_DATA_DIR"
 DEFAULT_DATA_DIR = Path(__file__).resolve().parent
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_PORT = 8000
 EXIT_OK = 0
 EXIT_FAILED = 1  # a lookup, download, or file write did not succeed
 EXIT_USAGE = 2  # bad command line or word-list file (argparse also uses 2)
@@ -127,28 +127,6 @@ def play_audio(path: Path, *, mixer: ModuleType | None = None) -> None:
 
 
 # ------------------------------- Program Steps --------------------------------
-def show_word_of_the_day() -> None:
-    """Print today's featured word. Prints a friendly message on failure
-    instead of crashing, since this is a non-essential nicety."""
-    try:
-        _, soup = func.fetch_page()
-        print("Word of the Day:", func.get_word_of_the_day(soup))
-    except (requests.exceptions.RequestException, ValueError) as exc:
-        print(f"(Could not retrieve the Word of the Day: {exc})")
-
-
-def describe_network_error(exc: requests.exceptions.RequestException) -> str:
-    """Explain a failed request; an HTTP 403 gets a pointer to the fix."""
-    message = str(exc)
-    if func.http_status(exc) == 403:
-        message += (
-            f"\n  Hint: the server refused the request. If this is the website, "
-            f"use the official API instead: set {dictionary_api.API_KEY_ENV_VAR} "
-            "(see the README section 'If you get HTTP 403')."
-        )
-    return message
-
-
 def look_up_word(
     lookup: func.Lookup | None = None, history: WordHistory | None = None
 ) -> func.Entry:
@@ -156,8 +134,8 @@ def look_up_word(
 
     Args:
         lookup: Callable returning the ``Entry`` for a word; defaults to
-            ``func.lookup_word`` (the scraper). Pass one with a cache, rate
-            limiter or the official API already bound.
+            ``func.lookup_word``. Pass one with a cache and rate limiter
+            already bound.
         history: Optional log that every attempted word is recorded in.
     """
     lookup = lookup or func.lookup_word  # resolved at call time so tests can patch it
@@ -165,14 +143,11 @@ def look_up_word(
     while True:
         try:
             entry = lookup(word)
-        except func.WordNotFoundError as exc:
+        except func.WordNotFoundError:
             record_history(history, word, found=False)
-            print(f"The word you've entered, \"{word}\", isn't in the dictionary.")
-            if exc.suggestions:
-                print(f"Did you mean: {', '.join(exc.suggestions)}?")
-            print()
+            print(f"The word you've entered, \"{word}\", isn't in the dictionary.\n")
         except requests.exceptions.RequestException as exc:
-            reason = describe_network_error(exc)
+            reason = func.describe_network_error(exc)
             print(f"Network error while looking up '{word}': {reason}\n")
         else:
             record_history(history, word, found=True)
@@ -218,16 +193,6 @@ def offer_pronunciation(entry: func.Entry) -> None:
 
 
 # ------------------------------ History & Output ------------------------------
-def record_history(history: WordHistory | None, word: str, *, found: bool) -> None:
-    """Log a lookup. The log is a convenience, so a failure only warns."""
-    if history is None:
-        return
-    try:
-        history.record(word, found=found)
-    except OSError as exc:
-        logger.warning("could not update the word history: %s", exc)
-
-
 def show_history(history: WordHistory, fmt: str) -> int:
     """Print the lookup log: tab-separated text (default) or a JSON array."""
     records = history.read()
@@ -265,15 +230,15 @@ examples:
   cat words.txt | python main.py --word-list - --format json
   python main.py --word serendipity --pronounce
   python main.py --history
+  python main.py --serve
 
 environment:
-  MW_API_KEY             key for the official Merriam-Webster API; when set it
-                         is used instead of the website, which blocks scripts
   DICTIONARY_DATA_DIR    where the history and cache live (see --data-dir)
   DICTIONARY_USER_AGENT  User-Agent header to send (see the README)
 
 With no lookup options an interactive session starts. Results go to stdout;
-warnings and errors go to stderr, so the output is safe to pipe.
+warnings and errors go to stderr, so the output is safe to pipe. --serve starts
+a local web interface instead (see the README).
 """
 
 
@@ -285,6 +250,17 @@ def non_negative_float(value: str) -> float:
         raise argparse.ArgumentTypeError(f"invalid number: {value!r}") from None
     if math.isnan(number) or number < 0:
         raise argparse.ArgumentTypeError("must be zero or greater")
+    return number
+
+
+def port_number(value: str) -> int:
+    """argparse type: a TCP port, where 0 lets the system pick a free one."""
+    try:
+        number = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid port: {value!r}") from None
+    if not 0 <= number <= 65535:
+        raise argparse.ArgumentTypeError("must be between 0 and 65535")
     return number
 
 
@@ -347,15 +323,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="do not record this run's lookups in the history log",
     )
 
-    network = parser.add_argument_group("source, caching and network")
-    network.add_argument(
-        "--source",
-        choices=SOURCES,
-        default="auto",
-        help="where definitions come from: the official API (needs "
-        f"${dictionary_api.API_KEY_ENV_VAR}) or the website, which usually "
-        "blocks scripts; auto (default) uses the API when a key is set",
-    )
+    network = parser.add_argument_group("caching and network")
     network.add_argument(
         "--no-cache",
         action="store_true",
@@ -378,6 +346,28 @@ def build_parser() -> argparse.ArgumentParser:
         "cached lookups never wait",
     )
 
+    web = parser.add_argument_group("web interface")
+    web.add_argument(
+        "--serve",
+        action="store_true",
+        help="start a local web interface instead of looking words up here",
+    )
+    web.add_argument(
+        "--host",
+        metavar="ADDRESS",
+        help=f"address to listen on (default: {DEFAULT_HOST}, this computer only); "
+        "there is no login, so anything else exposes your history",
+    )
+    web.add_argument(
+        "--port",
+        type=port_number,
+        metavar="PORT",
+        help=f"port to listen on (default: {DEFAULT_PORT}; 0 picks a free one)",
+    )
+    web.add_argument(
+        "--open", action="store_true", help="open the web interface in your browser"
+    )
+
     misc = parser.add_argument_group("other")
     misc.add_argument(
         "--data-dir",
@@ -397,8 +387,40 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def validate_serve_args(
+    parser: argparse.ArgumentParser, args: argparse.Namespace
+) -> bool:
+    """Check the web-interface options; return whether ``--serve`` was given."""
+    if not args.serve:
+        for flag, given in (
+            ("--host", args.host),
+            ("--port", args.port is not None),
+            ("--open", args.open),
+        ):
+            if given:
+                parser.error(f"{flag} requires --serve")
+        return False
+    conflicts = [
+        flag
+        for flag, given in (
+            ("--word", args.word),
+            ("--word-list", args.word_list),
+            ("--history", args.history),
+            ("--output", args.output),
+            ("--format", args.format),
+            ("--pronounce", args.pronounce),
+        )
+        if given
+    ]
+    if conflicts:
+        parser.error(f"--serve cannot be combined with {', '.join(conflicts)}")
+    return True
+
+
 def validate_args(parser: argparse.ArgumentParser, args: argparse.Namespace) -> None:
     """Reject option combinations that make no sense, then fill in defaults."""
+    if validate_serve_args(parser, args):
+        return
     lookups = bool(args.word or args.word_list)
 
     if args.history:
@@ -430,8 +452,6 @@ def configure_logging(verbosity: int) -> None:
     """Send diagnostics to stderr; ``-v`` adds INFO, ``-vv`` adds DEBUG."""
     level = (logging.WARNING, logging.INFO, logging.DEBUG)[min(verbosity, 2)]
     logging.basicConfig(level=level, format="%(levelname)s: %(message)s")
-    # urllib3 logs full request URLs at DEBUG, and the API key is part of them.
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
 
 
 def read_word_list(source: str) -> str:
@@ -499,20 +519,15 @@ def run_cli(
     for word in words:
         try:
             entry = lookup(word)
-        except func.WordNotFoundError as exc:
-            hint = (
-                f" (did you mean: {', '.join(exc.suggestions)}?)"
-                if exc.suggestions
-                else ""
-            )
-            logger.error("%r isn't in the dictionary%s", word, hint)
+        except func.WordNotFoundError:
+            logger.error("%r isn't in the dictionary", word)
             record_history(history, word, found=False)
             failures += 1
         except requests.exceptions.RequestException as exc:
             logger.error(
                 "network error while looking up %r: %s",
                 word,
-                describe_network_error(exc),
+                func.describe_network_error(exc),
             )
             failures += 1
         else:
@@ -531,22 +546,11 @@ def run_cli(
 
 
 # ------------------------------ Interactive Mode ------------------------------
-def run_interactive(
-    *, lookup: func.Lookup, history: WordHistory | None, show_wotd: bool = True
-) -> int:
-    """The original prompt-driven session: welcome, look up one word, say bye.
-
-    Args:
-        show_wotd: Whether to fetch the Word of the Day. It is scraped from the
-            website's homepage, so it is skipped when using the API.
-    """
+def run_interactive(*, lookup: func.Lookup, history: WordHistory | None) -> int:
+    """The prompt-driven session: welcome, look up one word, say bye."""
     func.draw_line_break()
     print("Welcome to the Dictionary of Merriam-Webster")
     func.draw_line_break()
-
-    if show_wotd:
-        show_word_of_the_day()
-        func.draw_line_break()
 
     entry = look_up_word(lookup=lookup, history=history)
 
@@ -562,23 +566,46 @@ def run_interactive(
     return EXIT_OK
 
 
-# ------------------------------- Main Function -------------------------------
-def build_lookup(
-    source: str,
-    *,
-    api_key: str,
-    cache: HtmlCache | None,
-    limiter: func.RateLimiter,
-) -> func.Lookup:
-    """Bind a lookup function to its cache and rate limiter."""
-    if source == "api":
-        return functools.partial(
-            dictionary_api.lookup_word, api_key=api_key, cache=cache, limiter=limiter
+# ------------------------------- Web Interface --------------------------------
+def run_server(
+    args: argparse.Namespace, *, lookup: func.Lookup, history: WordHistory | None
+) -> int:
+    """Serve the web interface until Ctrl-C."""
+    host = args.host or DEFAULT_HOST
+    port = DEFAULT_PORT if args.port is None else args.port
+    try:
+        server = web_server.create_server(
+            lookup=lookup, history=history, host=host, port=port
         )
-    fetch = functools.partial(func.fetch_page, cache=cache, limiter=limiter)
-    return functools.partial(func.lookup_word, fetch=fetch)
+    except OSError as exc:
+        logger.error(
+            "could not start the web interface on %s port %s: %s", host, port, exc
+        )
+        return EXIT_FAILED
+
+    bound_host = str(server.server_address[0])
+    bound_port = int(server.server_address[1])
+    shown = f"[{bound_host}]" if ":" in bound_host else bound_host
+    url = f"http://{shown}:{bound_port}/"
+    if not web_server.is_loopback(host):
+        logger.warning(
+            "listening on %s: there is no login, so anyone who can reach this "
+            "address can use the tool and see the lookup history",
+            host,
+        )
+    print(f"Serving on {url} (press Ctrl-C to stop)", flush=True)
+    if args.open:
+        webbrowser.open(url)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopped.", file=sys.stderr)
+    finally:
+        server.server_close()
+    return EXIT_OK
 
 
+# ------------------------------- Main Function -------------------------------
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -589,32 +616,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.history:
         return show_history(history_log, args.format)
 
-    api_key = os.environ.get(dictionary_api.API_KEY_ENV_VAR, "").strip()
-    source = args.source if args.source != "auto" else ("api" if api_key else "web")
-    if source == "api" and not api_key:
-        parser.error(
-            f"--source api needs the {dictionary_api.API_KEY_ENV_VAR} environment "
-            "variable (see the README section 'If you get HTTP 403')"
-        )
-    logger.info("using the %s source", source)
-
     history = None if args.no_history else history_log
-    # Each source has its own cache folder: their payloads differ (HTML vs JSON).
     cache = (
         None
         if args.no_cache
-        else HtmlCache(args.data_dir / CACHE_DIRNAME / source, ttl=args.cache_ttl)
+        else HtmlCache(args.data_dir / CACHE_DIRNAME, ttl=args.cache_ttl)
     )
-    lookup = build_lookup(
-        source,
-        api_key=api_key,
-        cache=cache,
-        limiter=func.RateLimiter(args.delay),
+    fetch = functools.partial(
+        func.fetch_page, cache=cache, limiter=func.RateLimiter(args.delay)
     )
+    lookup = functools.partial(func.lookup_word, fetch=fetch)
 
+    if args.serve:
+        return run_server(args, lookup=lookup, history=history)
     if args.word or args.word_list:
         return run_cli(args, lookup=lookup, history=history)
-    return run_interactive(lookup=lookup, history=history, show_wotd=source == "web")
+    return run_interactive(lookup=lookup, history=history)
 
 
 if __name__ == "__main__":

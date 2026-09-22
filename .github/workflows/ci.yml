@@ -66,6 +66,21 @@ jobs:
         run: |
           python main.py --help > /dev/null
           python main.py --history --data-dir "$RUNNER_TEMP/smoke"
+      - name: Web interface smoke test (needs no network)
+        shell: bash
+        run: |
+          python main.py --serve --port 0 --no-cache --data-dir "$RUNNER_TEMP/smoke-web" \
+            > "$RUNNER_TEMP/serve.log" 2>&1 &
+          pid=$!
+          for _ in $(seq 1 50); do
+            port=$(grep -oE ':[0-9]+/' "$RUNNER_TEMP/serve.log" | head -1 | tr -d ':/') || true
+            [ -n "$port" ] && break
+            sleep 0.1
+          done
+          [ -n "$port" ] || { echo "::error::server did not start"; cat "$RUNNER_TEMP/serve.log"; exit 1; }
+          curl -fsS "http://127.0.0.1:$port/" | grep -q "Look up"
+          kill -INT "$pid"
+          wait "$pid"
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'

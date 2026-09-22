@@ -19,13 +19,7 @@ read and taken seriously.
 
 ## What is in scope
 
-The program downloads web pages, API replies and an audio file from
-Merriam-Webster and stores two local files (`word_history.json` and the
-`.cache/` folder). Reports about the handling of that untrusted content are the
-most useful, for example path traversal, unsafe URLs, unbounded downloads, or
-unsafe deserialisation.
-
-It also reads a secret, the Merriam-Webster API key (`MW_API_KEY`), from the
-environment. The key is sent only as a query parameter to dictionaryapi.com and
-must never reach logs, error messages, the cache or the history; a report of any
-path by which it does is in scope.
+The program downloads web pages and an audio file from Merriam-Webster and
+stores two local files (`word_history.json` and the `.cache/` folder). Reports
+about the handling of that untrusted content are the most useful, for example
+path traversal, unsafe URLs, unbounded downloads, or unsafe deserialisation.

@@ -8,21 +8,24 @@ and ``--delay 0``, so nothing touches the repository or sleeps.
 
 from __future__ import annotations
 
+import http.client
 import io
 import json
 import logging
-import os
+import re
+import signal
 import subprocess
 import sys
+import threading
 from pathlib import Path
 from urllib.parse import unquote
 
 import pytest
 import requests
 
-import dictionary_api
 import functions as func
 import main
+from word_history import WordHistory
 
 SERENDIPITY_HTML = """
 <html><head><script type="application/ld+json">
@@ -36,26 +39,6 @@ EPHEMERAL_HTML = (
     "<html><body>"
     '<span class="dtText">: lasting a very short time</span>'
     "</body></html>"
-)
-API_KEY = "test-key-1234"
-API_SERENDIPITY = json.dumps(
-    [
-        {
-            "meta": {"id": "serendipity"},
-            "hwi": {
-                "hw": "ser*en*dip*i*ty",
-                "prs": [{"mw": "x", "sound": {"audio": "serend01"}}],
-            },
-            "fl": "noun",
-            "shortdef": [
-                "the faculty of finding valuable things",
-                "an instance of this",
-            ],
-        }
-    ]
-)
-API_EPHEMERAL = json.dumps(
-    [{"meta": {"id": "ephemeral"}, "fl": "adjective", "shortdef": ["short-lived"]}]
 )
 PROJECT_DIR = Path(main.__file__).resolve().parent
 
@@ -74,44 +57,28 @@ class FakeResponse:
 
 
 class FakeWeb:
-    """Stands in for merriam-webster.com and the official API, routing
-    requests.get by URL and word."""
+    """Stands in for merriam-webster.com, routing requests.get by word."""
 
     def __init__(self) -> None:
         self.pages = {"serendipity": SERENDIPITY_HTML, "ephemeral": EPHEMERAL_HTML}
-        self.api = {"serendipity": API_SERENDIPITY, "ephemeral": API_EPHEMERAL}
         self.errors: dict[str, Exception] = {}
         self.urls: list[str] = []
         self.headers: list[object] = []
-        self.api_urls: list[str] = []
 
     def __call__(self, url: str, timeout: float, **kwargs: object) -> FakeResponse:
         self.urls.append(url)
         self.headers.append(kwargs.get("headers"))
         word = unquote(url.rsplit("/", 1)[-1])
-        if url.startswith(dictionary_api.API_URL):
-            return self.api_reply(url, word, kwargs.get("params"))
         if word in self.errors:
             raise self.errors[word]
         if word in self.pages:
             return FakeResponse(self.pages[word])
         return FakeResponse("Sorry, that word isn't in the dictionary.", 404)
 
-    def api_reply(self, url: str, word: str, params: object) -> FakeResponse:
-        self.api_urls.append(url)
-        if word in self.errors:
-            raise self.errors[word]
-        if not isinstance(params, dict) or params.get("key") != API_KEY:
-            return FakeResponse("Invalid API key. Not subscribed for this reference.")
-        if word in self.api:
-            return FakeResponse(self.api[word])
-        return FakeResponse(json.dumps(["suggestion-a", "suggestion-b"]))
-
 
 @pytest.fixture(autouse=True)
 def clean_environment(monkeypatch):
-    """A developer's real API key or User-Agent must not leak into the tests."""
-    monkeypatch.delenv(dictionary_api.API_KEY_ENV_VAR, raising=False)
+    """A developer's own User-Agent setting must not leak into the tests."""
     monkeypatch.delenv(func.USER_AGENT_ENV_VAR, raising=False)
 
 
@@ -456,7 +423,7 @@ class TestCaching:
 
     def test_cache_files_live_under_the_data_dir(self, web, run, tmp_path):
         run("--word", "ephemeral")
-        assert len(list((tmp_path / ".cache" / "web").glob("*.json.gz"))) == 1
+        assert len(list((tmp_path / ".cache").glob("*.json.gz"))) == 1
 
     def test_no_cache_neither_reads_nor_writes(self, web, run, tmp_path):
         run("--word", "ephemeral", "--no-cache")
@@ -623,22 +590,21 @@ class TestModeSelection:
     def test_no_arguments_starts_the_interactive_session(self, monkeypatch, tmp_path):
         seen = {}
 
-        def fake_interactive(*, lookup, history, show_wotd):
-            seen.update(history=history, show_wotd=show_wotd)
+        def fake_interactive(*, lookup, history):
+            seen["history"] = history
             return 0
 
         monkeypatch.setattr(main, "run_interactive", fake_interactive)
 
         assert main.main(["--data-dir", str(tmp_path)]) == 0
         assert seen["history"] is not None
-        assert seen["show_wotd"] is True  # the website source shows it
 
     def test_interactive_mode_honours_no_history(self, monkeypatch, tmp_path):
         seen = {}
         monkeypatch.setattr(
             main,
             "run_interactive",
-            lambda *, lookup, history, show_wotd: seen.update(h=history) or 0,
+            lambda *, lookup, history: seen.update(h=history) or 0,
         )
 
         main.main(["--data-dir", str(tmp_path), "--no-history"])
@@ -720,147 +686,171 @@ class TestModeSelection:
 
 
 # --------------------------------------------------------------- API source
-class TestApiSource:
-    @pytest.fixture(autouse=True)
-    def api_key(self, monkeypatch):
-        monkeypatch.setenv(dictionary_api.API_KEY_ENV_VAR, API_KEY)
+# ------------------------------------------------------------ web interface
+class FakeServer:
+    """Stands in for the HTTP server: serves until "Ctrl-C", then closes."""
 
-    def test_a_key_switches_the_lookups_to_the_official_api(self, web, run):
-        code, out, _err = run("--word", "serendipity")
+    def __init__(self, address: tuple = ("127.0.0.1", 8000)) -> None:
+        self.server_address = address
+        self.closed = False
+
+    def serve_forever(self) -> None:
+        raise KeyboardInterrupt
+
+    def server_close(self) -> None:
+        self.closed = True
+
+
+class TestServe:
+    @pytest.fixture
+    def created(self, monkeypatch) -> dict:
+        record: dict = {"address": ("127.0.0.1", 8000)}
+
+        def fake_create_server(**kwargs):
+            record.update(kwargs)
+            record["server"] = FakeServer(record["address"])
+            return record["server"]
+
+        monkeypatch.setattr(main.web_server, "create_server", fake_create_server)
+        return record
+
+    def test_starts_on_the_default_address_and_stops_on_ctrl_c(self, created, run):
+        code, out, err = run("--serve")
 
         assert code == 0
-        assert out == (
-            "SERENDIPITY\n"
-            "Entry 1: (noun) the faculty of finding valuable things\n"
-            "Entry 2: (noun) an instance of this\n"
-        )
-        assert len(web.api_urls) == 1
-        assert web.urls == web.api_urls  # the website was never contacted
+        assert out == "Serving on http://127.0.0.1:8000/ (press Ctrl-C to stop)\n"
+        assert "Stopped." in err
+        assert (created["host"], created["port"]) == ("127.0.0.1", 8000)
+        assert created["server"].closed
 
-    def test_the_audio_url_is_built_from_the_api_reply(self, web, run):
-        _code, out, _err = run("-w", "serendipity", "--format", "json")
-        assert json.loads(out)[0]["audio_url"] == (
-            "https://media.merriam-webster.com/audio/prons/en/us/mp3/s/serend01.mp3"
-        )
+    def test_host_and_port_can_be_chosen(self, created, run):
+        created["address"] = ("127.0.0.1", 9999)
 
-    def test_without_a_key_the_website_is_used(self, web, run, monkeypatch):
-        monkeypatch.delenv(dictionary_api.API_KEY_ENV_VAR)
+        run("--serve", "--host", "localhost", "--port", "9999")
 
-        run("--word", "ephemeral")
+        assert (created["host"], created["port"]) == ("localhost", 9999)
 
-        assert web.api_urls == []
-        assert web.urls[0].startswith(func.DICTIONARY_URL)
+    def test_port_zero_reports_the_port_the_system_picked(self, created, run):
+        created["address"] = ("127.0.0.1", 54321)
 
-    def test_a_blank_key_counts_as_no_key(self, web, run, monkeypatch):
-        monkeypatch.setenv(dictionary_api.API_KEY_ENV_VAR, "   ")
+        code, out, _err = run("--serve", "--port", "0")
 
-        run("--word", "ephemeral")
+        assert created["port"] == 0
+        assert "http://127.0.0.1:54321/" in out
 
-        assert web.api_urls == []
+    def test_ipv6_addresses_are_shown_in_brackets(self, created, run):
+        created["address"] = ("::1", 8000, 0, 0)
 
-    def test_source_web_forces_the_website_even_with_a_key(self, web, run):
-        run("--word", "ephemeral", "--source", "web")
-        assert web.api_urls == []
+        _code, out, _err = run("--serve", "--host", "::1")
 
-    def test_source_api_without_a_key_is_a_usage_error(self, web, run, monkeypatch):
-        monkeypatch.delenv(dictionary_api.API_KEY_ENV_VAR)
+        assert "http://[::1]:8000/" in out
 
-        code, _out, err = run("--word", "ephemeral", "--source", "api")
-
-        assert code == 2
-        assert dictionary_api.API_KEY_ENV_VAR in err
-        assert web.urls == []
-
-    def test_unknown_words_report_spelling_suggestions(self, web, run, caplog):
-        code, _out, _err = run("--word", "tset")
-
-        assert code == 1
-        assert "'tset' isn't in the dictionary" in caplog.text
-        assert "did you mean: suggestion-a, suggestion-b?" in caplog.text
-
-    def test_a_wrong_key_is_reported_and_never_cached(
-        self, web, run, monkeypatch, tmp_path, caplog
+    def test_the_lookup_it_serves_uses_the_cache_and_data_dir(
+        self, created, web, run, tmp_path
     ):
-        monkeypatch.setenv(dictionary_api.API_KEY_ENV_VAR, "wrong-key")
+        run("--serve")
 
-        code, out, _err = run("--word", "serendipity")
+        entry = created["lookup"]("ephemeral")
+
+        assert entry.definitions == ("lasting a very short time",)
+        assert len(list((tmp_path / ".cache").glob("*.json.gz"))) == 1
+        created["lookup"]("ephemeral")
+        assert len(web.urls) == 1  # the second call came from the cache
+
+    def test_the_history_it_records_lives_in_the_data_dir(self, created, run, tmp_path):
+        run("--serve")
+
+        history = created["history"]
+        assert isinstance(history, WordHistory)
+        assert history.path == tmp_path / "word_history.json"
+
+    def test_no_history_turns_recording_off(self, created, run):
+        run("--serve", "--no-history")
+        assert created["history"] is None
+
+    def test_a_non_local_address_gets_a_warning_about_the_missing_login(
+        self, created, run, caplog
+    ):
+        created["address"] = ("192.0.2.1", 8000)
+
+        run("--serve", "--host", "192.0.2.1")
+
+        assert "there is no login" in caplog.text
+
+    def test_a_local_address_gets_no_warning(self, created, run, caplog):
+        run("--serve")
+        assert "no login" not in caplog.text
+
+    def test_open_launches_the_browser(self, created, run, monkeypatch):
+        opened: list[str] = []
+        monkeypatch.setattr(main.webbrowser, "open", opened.append)
+
+        run("--serve", "--open")
+
+        assert opened == ["http://127.0.0.1:8000/"]
+
+    def test_the_browser_is_not_opened_by_default(self, created, run, monkeypatch):
+        monkeypatch.setattr(
+            main.webbrowser, "open", lambda url: pytest.fail("browser opened")
+        )
+        run("--serve")
+
+    def test_a_port_that_cannot_be_bound_exits_1(self, monkeypatch, run, caplog):
+        def refuse(**kwargs):
+            raise OSError("Address already in use")
+
+        monkeypatch.setattr(main.web_server, "create_server", refuse)
+
+        code, out, _err = run("--serve")
 
         assert (code, out) == (1, "")
-        assert "unexpected reply from the dictionary API" in caplog.text
-        assert "Invalid API key" in caplog.text
-        assert not (tmp_path / ".cache" / "api").exists()
+        assert "could not start the web interface" in caplog.text
+        assert "Address already in use" in caplog.text
 
-    def test_the_key_never_appears_in_error_messages_or_logs(self, web, run, caplog):
-        caplog.set_level(logging.DEBUG)
-        web.errors["serendipity"] = requests.exceptions.ConnectionError(
-            f"Max retries exceeded with url: /x/serendipity?key={API_KEY}"
-        )
+    @pytest.mark.parametrize(
+        "option",
+        [
+            ["--word", "x"],
+            ["--word-list", "words.txt"],
+            ["--history"],
+            ["--output", "out.md"],
+            ["--format", "json"],
+            ["--pronounce"],
+        ],
+    )
+    def test_serve_cannot_be_combined_with_lookup_options(self, run, option):
+        code, _out, err = run("--serve", *option)
 
-        code, out, err = run("--word", "serendipity", "-vv")
+        assert code == 2
+        assert "--serve cannot be combined with" in err
 
-        assert code == 1
-        assert API_KEY not in caplog.text + out + err
+    @pytest.mark.parametrize(
+        "option", [["--host", "localhost"], ["--port", "80"], ["--open"]]
+    )
+    def test_web_options_need_serve(self, run, option):
+        code, _out, err = run(*option)
 
-    def test_the_key_is_not_in_the_request_url(self, web, run):
-        run("--word", "serendipity")
-        assert all(API_KEY not in url for url in web.urls)
+        assert code == 2
+        assert "requires --serve" in err
 
-    def test_urllib3_debug_logging_is_kept_off_because_it_prints_the_key(self):
-        urllib3_logger = logging.getLogger("urllib3")
-        original = urllib3_logger.level
-        try:
-            main.configure_logging(2)
-            assert urllib3_logger.level == logging.WARNING
-        finally:
-            urllib3_logger.setLevel(original)
+    @pytest.mark.parametrize("port", ["70000", "-1", "abc", "8.5"])
+    def test_invalid_ports_are_rejected(self, run, port):
+        assert run("--serve", "--port", port)[0] == 2
 
-    def test_api_replies_are_cached_in_their_own_folder(self, web, run, tmp_path):
-        run("--word", "serendipity")
-        run("--word", "serendipity")
-
-        assert len(web.api_urls) == 1
-        assert len(list((tmp_path / ".cache" / "api").glob("*.json.gz"))) == 1
-
-    def test_the_two_sources_never_share_cache_entries(
-        self, web, run, monkeypatch, tmp_path
-    ):
-        run("--word", "ephemeral")  # API
-        monkeypatch.delenv(dictionary_api.API_KEY_ENV_VAR)
-        code, out, _err = run("--word", "ephemeral")  # website
-
-        assert code == 0
-        assert "lasting a very short time" in out  # the website's wording
-        assert len(web.urls) == 2  # each source made its own request
-
-    def test_the_interactive_session_skips_the_scraped_word_of_the_day(
-        self, monkeypatch, tmp_path
-    ):
-        seen = {}
-        monkeypatch.setattr(
-            main,
-            "run_interactive",
-            lambda *, lookup, history, show_wotd: seen.update(w=show_wotd) or 0,
-        )
-
-        main.main(["--data-dir", str(tmp_path)])
-
-        assert seen["w"] is False
-
-    def test_help_documents_the_api_key(self, capsys):
+    def test_help_documents_the_web_interface(self, capsys):
         with pytest.raises(SystemExit):
             main.main(["--help"])
+
         text = capsys.readouterr().out
-        assert "--source" in text
-        assert dictionary_api.API_KEY_ENV_VAR in text
+        for expected in ("--serve", "--host", "--port", "--open", "web interface"):
+            assert expected in text
 
 
 # ---------------------------------------------------- real-process behaviour
 class TestAsAPipeline:
     """Run main.py in a real subprocess to check what a shell would see."""
 
-    def run_script(
-        self, *argv: str, data_dir: Path, stdin: str = "", api_key: str = ""
-    ):
+    def run_script(self, *argv: str, data_dir: Path, stdin: str = ""):
         return subprocess.run(
             [sys.executable, "main.py", *argv, "--data-dir", str(data_dir)],
             capture_output=True,
@@ -869,7 +859,6 @@ class TestAsAPipeline:
             cwd=PROJECT_DIR,
             timeout=60,
             check=False,
-            env={**os.environ, dictionary_api.API_KEY_ENV_VAR: api_key},
         )
 
     def test_stdout_holds_only_results_never_a_pygame_banner(self, tmp_path):
@@ -892,14 +881,51 @@ class TestAsAPipeline:
         assert "no-such-file.txt" in result.stderr
 
     def test_closed_stdin_in_interactive_mode_exits_cleanly(self, tmp_path):
-        # A key makes the session skip the Word of the Day, so nothing here
-        # touches the network before the first prompt hits end-of-file.
-        result = self.run_script(
-            "--no-history", "--no-cache", data_dir=tmp_path, api_key="dummy"
-        )
+        # The first prompt hits end-of-file before any request is made.
+        result = self.run_script("--no-history", "--no-cache", data_dir=tmp_path)
 
         assert "Traceback" not in result.stderr
         assert result.returncode != 0
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="needs POSIX signals")
+    def test_serve_starts_answers_and_stops_on_ctrl_c(self, tmp_path):
+        process = subprocess.Popen(
+            [sys.executable, "main.py", "--serve", "--port", "0"]
+            + ["--data-dir", str(tmp_path), "--no-cache"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            cwd=PROJECT_DIR,
+        )
+        try:
+            first_line: list[str] = []
+            reader = threading.Thread(
+                target=lambda: first_line.append(process.stdout.readline()), daemon=True
+            )
+            reader.start()
+            reader.join(timeout=30)
+            assert first_line, "the server printed nothing"
+            match = re.match(r"Serving on http://127\.0\.0\.1:(\d+)/", first_line[0])
+            assert match, first_line[0]
+
+            connection = http.client.HTTPConnection(
+                "127.0.0.1", int(match.group(1)), timeout=10
+            )
+            connection.request("GET", "/")
+            response = connection.getresponse()
+            assert response.status == 200
+            assert b"Look up" in response.read()
+            connection.close()
+
+            process.send_signal(signal.SIGINT)
+            _out, err = process.communicate(timeout=15)
+            assert process.returncode == 0
+            assert "Stopped." in err
+            assert "Traceback" not in err
+        finally:
+            if process.poll() is None:
+                process.kill()
+                process.communicate()
 
     def test_a_closed_pipe_does_not_print_a_traceback(self, tmp_path):
         rows = [
