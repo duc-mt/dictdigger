@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -46,8 +47,9 @@ class WordHistory:
     The tool only ever *adds* entries; it never edits or removes them. Each
     append rewrites the file atomically (temp file + ``os.replace``), so the
     log is always valid JSON that ``jq`` and friends can read. The trade-off
-    is that two processes appending at the very same instant can lose one
-    entry; that is acceptable for a single-user command-line tool.
+    is that two *processes* appending at the very same instant can lose one
+    entry; that is acceptable for a single-user tool. Threads inside one
+    process (the web interface) are serialised by a lock.
 
     A log that cannot be parsed is never overwritten: it is moved aside to
     ``word_history.json.corrupt-<timestamp>`` and a fresh log is started.
@@ -61,6 +63,7 @@ class WordHistory:
     def __init__(self, path: Path, *, clock: Callable[[], datetime] = _utc_now) -> None:
         self._path = Path(path)
         self._clock = clock
+        self._lock = threading.Lock()
 
     @property
     def path(self) -> Path:
@@ -68,16 +71,17 @@ class WordHistory:
 
     def record(self, word: str, *, found: bool = True) -> None:
         """Append one lookup to the log."""
-        raw = self._load_raw(repair=True)
-        raw.append(
-            {
-                "word": word,
-                "timestamp": self._clock().isoformat(timespec="seconds"),
-                "found": found,
-            }
-        )
-        text = json.dumps(raw, indent=2, ensure_ascii=False) + "\n"
-        atomic_write_bytes(self._path, text.encode("utf-8"))
+        with self._lock:
+            raw = self._load_raw(repair=True)
+            raw.append(
+                {
+                    "word": word,
+                    "timestamp": self._clock().isoformat(timespec="seconds"),
+                    "found": found,
+                }
+            )
+            text = json.dumps(raw, indent=2, ensure_ascii=False) + "\n"
+            atomic_write_bytes(self._path, text.encode("utf-8"))
 
     def read(self) -> list[HistoryRecord]:
         """Return every logged lookup, oldest first.
@@ -128,3 +132,16 @@ class WordHistory:
             )
             return []
         return data
+
+
+def record_history(history: WordHistory | None, word: str, *, found: bool) -> None:
+    """Log a lookup if a history is in use.
+
+    The log is a convenience, so a failure to write it only warns.
+    """
+    if history is None:
+        return
+    try:
+        history.record(word, found=found)
+    except OSError as exc:
+        logger.warning("could not update the word history: %s", exc)

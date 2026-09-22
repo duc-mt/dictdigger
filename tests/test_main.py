@@ -16,7 +16,6 @@ import pytest
 import requests
 from bs4 import BeautifulSoup
 
-import dictionary_api
 import functions as func
 import main
 from word_history import WordHistory
@@ -55,22 +54,6 @@ class TestPromptYesNo:
         assert "appropriate command" in capsys.readouterr().out
 
 
-class TestShowWordOfTheDay:
-    def test_prints_word_on_success(self, monkeypatch, capsys):
-        monkeypatch.setattr(main.func, "fetch_page", lambda: ("text", "soup"))
-        monkeypatch.setattr(main.func, "get_word_of_the_day", lambda soup: "ephemeral")
-        main.show_word_of_the_day()
-        assert "ephemeral" in capsys.readouterr().out
-
-    def test_prints_friendly_message_on_network_error(self, monkeypatch, capsys):
-        def raise_error():
-            raise requests.exceptions.ConnectionError("no network")
-
-        monkeypatch.setattr(main.func, "fetch_page", raise_error)
-        main.show_word_of_the_day()  # must not raise
-        assert "Could not retrieve" in capsys.readouterr().out
-
-
 def make_entry(
     word: str = "hello",
     definitions: tuple[str, ...] = ("a greeting",),
@@ -106,20 +89,6 @@ class TestLookUpWord:
 
         assert entry.word == "hello"
         assert "isn't in the dictionary" in capsys.readouterr().out
-
-    def test_shows_spelling_suggestions_when_the_source_has_them(
-        self, monkeypatch, capsys
-    ):
-        monkeypatch.setattr("builtins.input", make_input(["tset", "test"]))
-
-        def lookup(word):
-            if word == "tset":
-                raise func.WordNotFoundError(word, ["test", "set"])
-            return make_entry(word)
-
-        main.look_up_word(lookup=lookup)
-
-        assert "Did you mean: test, set?" in capsys.readouterr().out
 
     def test_reprompts_after_network_error(self, monkeypatch, capsys):
         monkeypatch.setattr("builtins.input", make_input(["fail", "hello"]))
@@ -188,29 +157,6 @@ class TestLookUpWord:
         main.look_up_word(lookup=lookup, history=history)
 
         assert [r.word for r in history.read()] == ["hello"]
-
-
-class TestDescribeNetworkError:
-    def test_plain_errors_are_passed_through(self):
-        message = main.describe_network_error(requests.exceptions.Timeout("slow"))
-        assert message == "slow"
-
-    @pytest.mark.parametrize(
-        "error",
-        [
-            make_http_error(403),
-            dictionary_api.ApiError("refused", status_code=403),
-        ],
-        ids=["website", "api"],
-    )
-    def test_http_403_points_to_the_api_key(self, error):
-        message = main.describe_network_error(error)
-        assert dictionary_api.API_KEY_ENV_VAR in message
-        assert "If you get HTTP 403" in message
-
-    def test_other_statuses_get_no_hint(self):
-        message = main.describe_network_error(make_http_error(500))
-        assert dictionary_api.API_KEY_ENV_VAR not in message
 
 
 class TestOfferPronunciation:
@@ -357,7 +303,6 @@ class TestRunInteractive:
     def session(self, monkeypatch):
         """Silence the pacing and stub the parts that need the network."""
         monkeypatch.setattr(main.func, "draw_line_break", lambda: None)
-        monkeypatch.setattr(main, "show_word_of_the_day", lambda: print("<wotd>"))
         monkeypatch.setattr(
             main, "offer_pronunciation", lambda entry: print("<offer pronunciation>")
         )
@@ -376,7 +321,6 @@ class TestRunInteractive:
         assert code == 0
         order = [
             "Welcome to the Dictionary of Merriam-Webster",
-            "<wotd>",
             "-> Definition of HELLO:",
             "a greeting",
             "<offer pronunciation>",
@@ -386,10 +330,3 @@ class TestRunInteractive:
             out.index(part) for part in order
         )
         assert [(r.word, r.found) for r in history.read()] == [("hello", True)]
-
-    def test_the_word_of_the_day_can_be_skipped(self, session, capsys):
-        main.run_interactive(
-            lookup=lambda word: make_entry(word), history=None, show_wotd=False
-        )
-
-        assert "<wotd>" not in capsys.readouterr().out

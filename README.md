@@ -8,8 +8,10 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Command-Line Mode](#command-line-mode)
+- [Web Interface](#web-interface)
 - [Testing](#testing)
 - [Development](#development)
+- [Video Production](#video-production)
 - [Tree Structure](#tree-structure)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -21,6 +23,9 @@ Specifically, I will web scrap an online dictionary
 [Merriam-Webster](https://www.merriam-webster.com/) - and extracts data from it,
 printing out the definition(s) as the user inputs a word. Moreover, I also
 retrieve the pronunciation from the dictionary and play it if the user asks for.
+Besides the interactive prompt, the program also runs as a one-shot command line
+tool (see [Command-Line Mode](#command-line-mode)) and as a small local website
+(see [Web Interface](#web-interface)).
 
 # Modules
 
@@ -42,28 +47,25 @@ in order to run the program.
       the program simply runs without audio.
 1. requests - its get() function allows for the exchange of HTTP requests. It
    also downloads the pronunciation file, with a timeout and a size limit.
-1. dictionary_api - a user-defined module that looks words up through the
-   official Merriam-Webster API (see [If you get HTTP 403](#if-you-get-http-403)).
 1. functions - this is a user-defined module that contains the reusable helpers
    which I separate from the main program to improve code legibility, code reuse
    and unit-testability.
 1. page_cache, word_history, exporters and atomic_io - user-defined modules for
    the on-disk cache, the lookup log, the .txt / .md / .json output, and
    crash-safe file writing. They only use the standard library.
+1. web_server and web_views - user-defined modules for the
+   [web interface](#web-interface). web_server is the HTTP layer, built on
+   `http.server` from the standard library alone (no framework, no third-party
+   dependency); web_views turns a lookup into an HTML page. Every value from a
+   scraped page or from a visitor is escaped in web_views before it reaches a
+   page, so a word or a definition can never inject markup.
 
 # Implementation
 
 To make the program more like a dictionary, before getting into any definition,
-I make a welcome statement and show the top lookup today. I get the URL of the
-website, then use the requests and bs4 module to extract the HTML data from the
-page. Then, I search through the HTML data to find the *a* tag which contains
-the information /word-of-the-day. Since the one I want to find is the third *a*
-tag containing the information /word-of-the-day, I use the *find_next()*
-function twice to find it. Lastly, I use the *get_text()* function to get
-the actual information without any HTML – which is the word of the day I am
-looking for.
-
-I use a similar procedure to find the definition. Some slight differences are:
+I make a welcome statement. To find a definition, I get the URL of the website,
+then use the requests and bs4 modules to extract the HTML data from the page and
+search through it. The steps are:
 
 - Ask the user to enter a word, then utilise the order of the URL, which is
   <https://www.merriam-webster.com/dictionary/{word}>, I just need to add the
@@ -99,7 +101,7 @@ The dictionary program culminates with a little thank you note.
 # Installation
 
 ```bash
-git clone https://github.com/tanducmai/web-scraping-dictionary.git
+git clone https://github.com/duc-mt/web-scraping-dictionary.git
 cd web-scraping-dictionary
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -115,8 +117,8 @@ Python 3.13 or older:
 pip install beautifulsoup4==4.15.0 requests==2.34.2
 ```
 
-To look words up you also need a free API key, because the website blocks
-scripts; see [If you get HTTP 403](#if-you-get-http-403).
+If the website answers `403 Forbidden`, see
+[If you get HTTP 403](#if-you-get-http-403).
 
 # Usage
 
@@ -124,38 +126,22 @@ scripts; see [If you get HTTP 403](#if-you-get-http-403).
 python3 main.py
 ```
 
-You'll see today's Word of the Day (website source only), then be prompted to look up a word. If a
+You'll be prompted to look up a word. If a
 pronunciation recording is available, you can choose to play it. To use the
-program from scripts and pipes instead, see [Command-Line Mode](#command-line-mode).
+program from scripts and pipes instead, see [Command-Line Mode](#command-line-mode);
+to use it from a browser instead, see [Web Interface](#web-interface).
 
 ## If you get HTTP 403
 
-merriam-webster.com blocks scripted requests: it answers `403 Forbidden` whatever
-`User-Agent` a script sends (this was checked on a real machine with three
-different ones). The reliable way in is the official Merriam-Webster Dictionary
-API, which is free for personal use:
-
-1. Register at [dictionaryapi.com](https://dictionaryapi.com/) and request a key
-   for the **Collegiate® Dictionary**. Check the terms and the daily query limit
-   shown there.
-2. Put the key in your environment (for zsh, add the line to `~/.zshrc` too):
-
-   ```bash
-   export MW_API_KEY="your-key-here"
-   ```
-
-3. Run the program as usual: `python3 main.py --word test`.
-
-With `MW_API_KEY` set the program uses the API automatically; `--source web`
-forces the website and `--source api` insists on the API. The key is read only
-from the environment, is never printed or written to the history or cache, and
-should never be committed. The API has no Word of the Day, so the interactive
-session skips it. Every word that is found is cached (see [Caching](#caching)),
-which keeps the number of API queries low.
-
-Only the website path uses the `DICTIONARY_USER_AGENT` environment variable (it
-sets the `User-Agent` header); it does not get around the block. (Press Ctrl-C
-to leave the interactive prompt.)
+merriam-webster.com sometimes refuses scripted requests with `403 Forbidden`. It
+looks intermittent: on one machine every lookup was refused at first, and later
+the same machine could look words up again. I do not know what triggers it, and
+there is nothing to configure. Wait a while and try again; words you have already
+looked up come from the [cache](#caching) and need no request. For a long word
+list, raise `--delay` to be gentler on the site. Requests identify themselves
+with a browser-compatible `User-Agent`, which you can replace with the
+`DICTIONARY_USER_AGENT` environment variable. (Press Ctrl-C to leave the
+interactive prompt.)
 
 # Command-Line Mode
 
@@ -183,7 +169,6 @@ python3 main.py --help
 | `--history` | Print the lookup history and exit. |
 | `--no-history` | Do not record this run in the history. |
 | `--no-cache` | Neither read nor write the page cache. |
-| `--source {auto,web,api}` | Where definitions come from: the official API (needs `MW_API_KEY`) or the website, which blocks scripts. `auto` (default) uses the API when a key is set. |
 | `--cache-ttl SECONDS` | How long a cached page stays valid (default one week; `0` forces a refresh). |
 | `--delay SECONDS` | Minimum pause between network requests (default 0.5). |
 | `--data-dir DIR` | Where the history and cache are kept (default: the program folder, or `$DICTIONARY_DATA_DIR`). |
@@ -221,13 +206,11 @@ rather than overwritten. The file is listed in `.gitignore`. Use `--history`
 
 ## Caching
 
-Whatever the source returned for a word that was found (the page HTML from the
-website, or the JSON reply from the API) is kept in the `.cache/` folder as one
+The HTML of every word page that was found is kept in the `.cache/` folder as one
 small gzip-compressed JSON file per word, and reused until it is older than
-`--cache-ttl`. Each source has its own subfolder (`.cache/api/`, `.cache/web/`).
-The homepage (Word of the Day) is never cached, and neither are unknown words or
-error replies. A damaged cache file is simply ignored and replaced. Delete the
-`.cache/` folder to start afresh.
+`--cache-ttl`. Unknown words and failed requests are never cached. A damaged
+cache file is simply ignored and replaced. Delete the `.cache/` folder to start
+afresh.
 
 ## Exit codes
 
@@ -236,6 +219,52 @@ error replies. A damaged cache file is simply ignored and replaced. Delete the
 | 0 | Every lookup succeeded. |
 | 1 | A lookup, download or file write failed (for example an unknown word or no network). |
 | 2 | Invalid command line or word-list file. |
+
+# Web Interface
+
+```bash
+python3 main.py --serve
+```
+
+This starts a small website on your own computer at `http://127.0.0.1:8000/`
+(add `--open` to launch your browser automatically). It has three pages:
+
+- **Search** (`/`) - a search box; recently found words are listed below it.
+- **Batch** (`/batch`) - paste a list of words (same rules as
+  [Batch lookups](#batch-lookups)) and either see them all on the page or
+  download them as `.txt`, `.md` or `.json`.
+- **History** (`/history`) - the same log as `--history`, as a table.
+
+There is no login, no account, and no JavaScript: every page is plain HTML
+and works with images and scripts turned off. The definitions still come from
+merriam-webster.com, so the same [HTTP 403](#if-you-get-http-403) note applies,
+and every page it serves goes through the same cache, rate limiter and history
+as the command line.
+
+**This is meant for you, alone, on your own computer.** By default the server
+only answers `127.0.0.1` (this machine) and refuses requests where the `Host`
+header, `Origin`, or `Sec-Fetch-Site` don't match, which is enough to stop a
+malicious web page from using your browser to reach it. It is not enough to put
+on the open internet: there is no login, so `--host 0.0.0.0` or a
+reverse-proxied public deployment would let anyone who can reach it look up
+words as you and read your history. `--host` and `--port` are there for
+reaching it from another device on your own network (a phone on the same
+Wi-Fi, say), not for exposing it publicly. The connection is also plain HTTP,
+with no encryption, so on a shared or untrusted network the words you look up
+and your history are visible to anyone who can observe that network segment —
+there's no password to steal, but the traffic itself isn't private.
+
+| Option | What it does |
+| --- | --- |
+| `--serve` | Start the web interface instead of a lookup. |
+| `--host ADDRESS` | Address to listen on (default `127.0.0.1`, this computer only). |
+| `--port PORT` | Port to listen on (default `8000`; `0` picks a free one). |
+| `--open` | Open the web interface in your default browser. |
+
+`--serve` cannot be combined with `--word`, `--word-list`, `--history`,
+`--output`, `--format` or `--pronounce`; `--no-history`, `--no-cache`,
+`--cache-ttl`, `--delay` and `--data-dir` all apply as they do on the command
+line. Stop the server with Ctrl-C.
 
 # Testing
 
@@ -270,6 +299,11 @@ merriam-webster.com for personal/educational use. Please review the site's
 terms of service before deploying it at any scale or frequency beyond
 occasional personal lookups.
 
+# Video Production
+
+[Execute the **main**
+module](https://raw.githubusercontent.com/duc-mt/web-scraping-dictionary/master/video_production.mp4)
+
 # Tree Structure
 
 ```
@@ -285,14 +319,18 @@ occasional personal lookups.
 │       ├── release.yml
 │       ├── scorecard.yml
 │       └── secret-scan.yml
+├── static/
+│   ├── favicon.svg
+│   └── style.css
 ├── tests/
 │   ├── test_atomic_io.py
 │   ├── test_cli.py
-│   ├── test_dictionary_api.py
 │   ├── test_exporters.py
 │   ├── test_functions.py
 │   ├── test_main.py
 │   ├── test_page_cache.py
+│   ├── test_web_server.py
+│   ├── test_web_views.py
 │   └── test_word_history.py
 ├── .gitignore
 ├── .pre-commit-config.yaml
@@ -300,7 +338,6 @@ occasional personal lookups.
 ├── README.md
 ├── SECURITY.md
 ├── atomic_io.py
-├── dictionary_api.py
 ├── exporters.py
 ├── functions.py
 ├── main.py
@@ -309,5 +346,7 @@ occasional personal lookups.
 ├── requirements-dev.txt
 ├── requirements.txt
 ├── video_production.mp4
+├── web_server.py
+├── web_views.py
 └── word_history.py
 ```
