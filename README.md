@@ -11,7 +11,6 @@
 - [Web Interface](#web-interface)
 - [Testing](#testing)
 - [Development](#development)
-- [Video Production](#video-production)
 - [Tree Structure](#tree-structure)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -101,7 +100,7 @@ The dictionary program culminates with a little thank you note.
 # Installation
 
 ```bash
-git clone https://github.com/duc-mt/web-scraping-dictionary.git
+git clone https://github.com/duc-mt/dictionary-web-scraping-machine.git
 cd web-scraping-dictionary
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -298,11 +297,6 @@ current.
 merriam-webster.com for personal/educational use. Please review the site's
 terms of service before deploying it at any scale or frequency beyond
 occasional personal lookups.
-
-# Video Production
-
-[Execute the **main**
-module](https://raw.githubusercontent.com/duc-mt/web-scraping-dictionary/master/video_production.mp4)
 
 # Tree Structure
 
