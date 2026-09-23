@@ -138,9 +138,8 @@ class RateLimiter:
 
 
 def draw_line_break() -> None:
-    """Print a visual line break and pause briefly for readability."""
+    """Print a visual line break."""
     print("\n", "-" * 71, "\n")
-    sleep(0.5)
 
 
 def fetch_page(
