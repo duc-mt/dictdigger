@@ -67,20 +67,43 @@ jobs:
           python main.py --help > /dev/null
           python main.py --history --data-dir "$RUNNER_TEMP/smoke"
       - name: Web interface smoke test (needs no network)
-        shell: bash
+        # A pure-Python check, deliberately avoiding shell job control
+        # (backgrounding + kill + wait): an earlier bash version of this step
+        # hung until the job's timeout, because a plain `wait` on a
+        # long-lived server process has no bound of its own. subprocess and
+        # threading give every blocking call here an explicit timeout.
         run: |
-          python main.py --serve --port 0 --no-cache --data-dir "$RUNNER_TEMP/smoke-web" \
-            > "$RUNNER_TEMP/serve.log" 2>&1 &
-          pid=$!
-          for _ in $(seq 1 50); do
-            port=$(grep -oE ':[0-9]+/' "$RUNNER_TEMP/serve.log" | head -1 | tr -d ':/') || true
-            [ -n "$port" ] && break
-            sleep 0.1
-          done
-          [ -n "$port" ] || { echo "::error::server did not start"; cat "$RUNNER_TEMP/serve.log"; exit 1; }
-          curl -fsS "http://127.0.0.1:$port/" | grep -q "Look up"
-          kill -INT "$pid"
-          wait "$pid"
+          python - <<'PY'
+          import re, subprocess, sys, tempfile, threading, urllib.request
+
+          proc = subprocess.Popen(
+              [sys.executable, "main.py", "--serve", "--port", "0", "--no-cache",
+               "--data-dir", tempfile.mkdtemp()],
+              stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+          )
+          try:
+              first_line = []
+              reader = threading.Thread(
+                  target=lambda: first_line.append(proc.stdout.readline()),
+                  daemon=True,
+              )
+              reader.start()
+              reader.join(timeout=30)
+              if not first_line:
+                  sys.exit("the server printed nothing within 30s")
+              print(first_line[0], end="")
+              match = re.search(r":(\d+)/", first_line[0])
+              if not match:
+                  sys.exit(f"could not find a port in: {first_line[0]!r}")
+              body = urllib.request.urlopen(
+                  f"http://127.0.0.1:{match.group(1)}/", timeout=10
+              ).read()
+              assert b"Look up" in body, "unexpected home page content"
+              print("web interface smoke test: OK")
+          finally:
+              proc.kill()
+              proc.wait(timeout=10)
+          PY
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         if: matrix.python-version == '3.12'
