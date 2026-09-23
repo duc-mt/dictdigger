@@ -516,8 +516,11 @@ class FakeStream:
         return self
 
     def __exit__(self, *exc_info):
-        self.closed = True
+        self.close()
         return False
+
+    def close(self):
+        self.closed = True
 
     def raise_for_status(self):
         if self.status >= 400:
