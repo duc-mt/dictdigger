@@ -384,13 +384,14 @@ def download_audio(
     target = Path(destination)
     written = 0
     try:
-        with requests.get(
+        response = requests.get(
             url,
             timeout=timeout,
             stream=True,
             headers=headers or request_headers(),
             impersonate="chrome110",
-        ) as response:
+        )
+        try:
             response.raise_for_status()
             with target.open("wb") as handle:
                 for chunk in response.iter_content(chunk_size=8192):
@@ -398,6 +399,8 @@ def download_audio(
                     if written > MAX_AUDIO_BYTES:
                         raise ValueError("the audio download is unexpectedly large")
                     handle.write(chunk)
+        finally:
+            response.close()
     except BaseException:
         target.unlink(missing_ok=True)  # never leave a partial clip behind
         raise
