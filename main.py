@@ -194,18 +194,13 @@ def offer_pronunciation(entry: func.Entry) -> None:
         return
 
     try:
-        mixer = load_mixer()
-        mixer.init()
-    except (ImportError, RuntimeError) as exc:  # no pygame, or no audio device
-        print(f"Could not start audio playback: {exc}")
-        return
-    try:
         while pronounce == "" or pronounce.lower() == "y":
-            mixer.music.load(MP3_FILENAME)
-            mixer.music.play()
+            play_audio(Path(MP3_FILENAME))
             pronounce = prompt_yes_no("One more time? [Y/n] ")
+    except (ImportError, RuntimeError) as exc:
+        print(f"Could not start audio playback: {exc}")
     finally:
-        mixer.quit()
+        Path(MP3_FILENAME).unlink(missing_ok=True)
 
 
 # ------------------------------ History & Output ------------------------------
