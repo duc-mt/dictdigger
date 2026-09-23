@@ -20,7 +20,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
-import requests
+from curl_cffi import requests
 
 import functions as func
 import web_server as web
