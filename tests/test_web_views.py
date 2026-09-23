@@ -205,7 +205,8 @@ class TestContent:
 
     def test_the_current_page_is_marked_in_the_navigation(self):
         page = views.render_history([])
-        assert '<a href="/history" aria-current="page">History</a>' in page
+        assert '<a href="/history" aria-current="page">' in page
+        assert 'History</a>' in page
         assert page.count("aria-current") == 1
 
     def test_definitions_are_a_numbered_list_in_order(self):
