@@ -1,30 +1,46 @@
-/* Dictionary web interface. No external fonts, images, or scripts. */
+/* Dictionary web interface. Modern, intuitive styling. */
 :root {
   color-scheme: light dark;
-  --bg: #fafaf9;
+  --bg: #f8fafc;
   --card: #ffffff;
-  --text: #1c1917;
-  --muted: #57534e;
-  --border: #d6d3d1;
-  --accent: #2563eb;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
   --accent-text: #ffffff;
-  --notice-bg: #fef3c7;
-  --notice-border: #d97706;
-  --focus: #1d4ed8;
+  --notice-bg: #fffbeb;
+  --notice-border: #f59e0b;
+  --focus: #93c5fd;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --badge-green-bg: #dcfce7;
+  --badge-green-text: #166534;
+  --badge-red-bg: #fee2e2;
+  --badge-red-text: #991b1b;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121212;
-    --card: #1c1c1e;
-    --text: #e7e5e4;
-    --muted: #a8a29e;
-    --border: #3f3f46;
-    --accent: #60a5fa;
-    --accent-text: #0b1220;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: #334155;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --accent-text: #ffffff;
     --notice-bg: #33260a;
     --notice-border: #f59e0b;
-    --focus: #93c5fd;
+    --focus: #60a5fa;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --badge-green-bg: #064e3b;
+    --badge-green-text: #6ee7b7;
+    --badge-red-bg: #7f1d1d;
+    --badge-red-text: #fca5a5;
   }
 }
 
@@ -37,80 +53,128 @@ body {
   background: var(--bg);
   color: var(--text);
   font: 1.0625rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 main,
 .site-header,
 footer {
-  max-width: 44rem;
+  max-width: 48rem;
   margin-inline: auto;
-  padding-inline: 1.25rem;
+  padding-inline: 1.5rem;
 }
 
 main {
-  padding-block: 1.5rem 3rem;
+  padding-block: 2rem 4rem;
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 0.5rem 1.5rem;
-  padding-block: 1.25rem 0.5rem;
+  gap: 1rem 2rem;
+  padding-block: 1rem;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
 
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--text);
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
   text-decoration: none;
+}
+
+.brand svg {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--accent);
 }
 
 nav {
   display: flex;
-  gap: 1.25rem;
+  gap: 0.5rem;
 }
 
 nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   color: var(--muted);
-  padding-block: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
   text-decoration: none;
-  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
 }
 
-nav a:hover,
-nav a[aria-current="page"] {
+nav a svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+nav a:hover {
   color: var(--text);
-  border-bottom-color: var(--accent);
+  background: var(--border);
+}
+
+nav a[aria-current="page"] {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 a {
   color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 
 h1 {
   margin: 0 0 0.5rem;
-  font-size: 2rem;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
 h2 {
   margin: 1.5rem 0 0.5rem;
-  font-size: 1.15rem;
+  font-size: 1.25rem;
+  font-weight: 700;
 }
 
 footer {
-  padding-block: 1rem 2rem;
+  padding-block: 1.5rem 2.5rem;
   color: var(--muted);
   font-size: 0.9rem;
+  text-align: center;
+  border-top: 1px solid var(--border);
 }
 
 .muted {
@@ -129,24 +193,35 @@ footer {
 /* Forms */
 .search {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
 }
 
 input[type="search"],
 textarea,
 select {
   width: 100%;
-  padding: 0.65rem 0.8rem;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--border);
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background: var(--card);
   color: var(--text);
   font: inherit;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+  outline: none;
 }
 
 select {
   width: auto;
+  cursor: pointer;
 }
 
 textarea {
@@ -157,28 +232,53 @@ textarea {
 }
 
 button {
-  padding: 0.65rem 1.1rem;
-  border: 1px solid var(--accent);
-  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.75rem;
   background: var(--accent);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.1), transparent);
   color: var(--accent-text);
   font: inherit;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
 }
 
-button.secondary {
-  background: transparent;
-  color: var(--accent);
+button svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 button:hover {
-  filter: brightness(1.08);
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+button.secondary {
+  background: var(--card);
+  background-image: none;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button.secondary:hover {
+  background-color: var(--bg);
 }
 
 .batch label {
   display: block;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
   font-weight: 600;
 }
 
@@ -186,22 +286,31 @@ button:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.75rem;
+  gap: 0.75rem;
+  margin-top: 1rem;
 }
 
 .batch .actions label {
-  margin: 0 0 0 0.5rem;
+  margin: 0 0 0 0.25rem;
   font-weight: 400;
+  cursor: pointer;
 }
 
 /* Entries */
 .entry {
-  margin-bottom: 1.5rem;
-  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem 2rem;
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   background: var(--card);
+  box-shadow: var(--shadow-sm);
+  border-top: 4px solid var(--accent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.entry:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .entry h1,
@@ -210,26 +319,32 @@ button:hover {
 }
 
 .definitions {
-  margin: 0.75rem 0 0;
-  padding-left: 1.4rem;
+  margin: 1rem 0 0;
+  padding-left: 1.25rem;
 }
 
 .definitions li {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .pronunciation {
-  margin: 0.25rem 0 0.75rem;
+  margin: 0.5rem 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .pronunciation figcaption {
   color: var(--muted);
   font-size: 0.85rem;
+  font-weight: 500;
 }
 
 audio {
   width: 100%;
   max-width: 22rem;
+  height: 2.5rem;
+  border-radius: 999px;
 }
 
 .chips {
@@ -243,25 +358,38 @@ audio {
 
 .chips a {
   display: inline-block;
-  padding: 0.25rem 0.8rem;
+  padding: 0.35rem 1rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--card);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
   text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.chips a:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
 }
 
 .notice {
-  margin-bottom: 1.5rem;
-  padding: 0.75rem 1rem;
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--border);
   border-left: 4px solid var(--notice-border);
-  border-radius: 0.25rem;
+  border-radius: 0.75rem;
   background: var(--notice-bg);
+  box-shadow: var(--shadow-sm);
 }
 
 .notice h1,
 .notice h2 {
-  margin: 0 0 0.25rem;
-  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  color: var(--notice-border);
 }
 
 .notice p,
@@ -271,34 +399,86 @@ audio {
 
 .notice ul {
   padding-left: 1.2rem;
+  margin-top: 0.5rem;
 }
 
-/* History */
+/* History & Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge.found {
+  background: var(--badge-green-bg);
+  color: var(--badge-green-text);
+}
+
+.badge.not-found {
+  background: var(--badge-red-bg);
+  color: var(--badge-red-text);
+}
+
 table.history {
   width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--card);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 table.history th,
 table.history td {
-  padding: 0.5rem 0.6rem;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--border);
   text-align: left;
 }
 
+table.history tr:last-child td {
+  border-bottom: none;
+}
+
 table.history th {
+  background: var(--bg);
   color: var(--muted);
   font-size: 0.85rem;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-@media (max-width: 30rem) {
+table.history tr:hover td {
+  background: color-mix(in srgb, var(--bg) 50%, transparent);
+}
+
+@media (max-width: 40rem) {
+  .site-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  nav {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .search {
     flex-direction: column;
   }
 
+  button {
+    width: 100%;
+  }
+
   h1 {
-    font-size: 1.6rem;
+    font-size: 1.75rem;
   }
 }

@@ -56,13 +56,20 @@ def audio_src(entry: func.Entry) -> str | None:
     return None
 
 
+_ICONS = {
+    "Search": '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>',
+    "Batch": '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" /></svg>',
+    "History": '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+}
+
 def layout(title: str, body: str, *, active: str = "") -> str:
     """Wrap ``body`` (already-safe HTML) in the shared page frame."""
     links = "".join(
         f'<a href="{href}"' + (' aria-current="page"' if href == active else "") + ">"
-        f"{label}</a>"
+        f"{_ICONS.get(label, '')}{label}</a>"
         for href, label in _NAV
     )
+    brand_svg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" /></svg>'
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -74,7 +81,7 @@ def layout(title: str, body: str, *, active: str = "") -> str:
 </head>
 <body>
 <header class="site-header">
-<a class="brand" href="/">Dictionary</a>
+<a class="brand" href="/">{brand_svg}Dictionary</a>
 <nav aria-label="Main">{links}</nav>
 </header>
 <main>
@@ -87,12 +94,13 @@ def layout(title: str, body: str, *, active: str = "") -> str:
 
 
 def search_form(value: str = "") -> str:
+    search_svg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>'
     return f"""<form class="search" action="/" method="get" role="search">
 <label class="visually-hidden" for="word">Word to look up</label>
 <input id="word" name="word" type="search" value="{esc(value)}"
  placeholder="Look up a word" maxlength="{func.MAX_WORD_LENGTH}"
  autocomplete="off" autocapitalize="none" spellcheck="false" required autofocus>
-<button type="submit">Look up</button>
+<button type="submit">{search_svg}Look up</button>
 </form>"""
 
 
@@ -227,7 +235,7 @@ def render_history(records: Sequence[HistoryRecord] | None) -> str:
         rows = "".join(
             f"<tr><td>{esc(record.timestamp)}</td>"
             f'<td><a href="{esc(word_url(record.word))}">{esc(record.word)}</a></td>'
-            f"<td>{'found' if record.found else 'not found'}</td></tr>"
+            f"<td><span class=\"badge {'found' if record.found else 'not-found'}\">{'found' if record.found else 'not found'}</span></td></tr>"
             for record in records
         )
         content = (
