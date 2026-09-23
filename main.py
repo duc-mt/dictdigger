@@ -558,18 +558,24 @@ def run_cli(
 
 # ------------------------------ Interactive Mode ------------------------------
 def run_interactive(*, lookup: func.Lookup, history: WordHistory | None) -> int:
-    """The prompt-driven session: welcome, look up one word, say bye."""
+    """The prompt-driven session: welcome, look up words in a loop, say bye."""
     func.draw_line_break()
     print("Welcome to the Dictionary of Merriam-Webster")
-    func.draw_line_break()
 
-    entry = look_up_word(lookup=lookup, history=history)
+    while True:
+        func.draw_line_break()
+        entry = look_up_word(lookup=lookup, history=history)
 
-    func.draw_line_break()
-    show_definition(entry)
+        func.draw_line_break()
+        show_definition(entry)
 
-    func.draw_line_break()
-    offer_pronunciation(entry)
+        func.draw_line_break()
+        offer_pronunciation(entry)
+
+        func.draw_line_break()
+        another = prompt_yes_no("Do you want to search for another word? [Y/n] ")
+        if another.lower() == "n":
+            break
 
     func.draw_line_break()
     print("Thank you for using our translation service!")

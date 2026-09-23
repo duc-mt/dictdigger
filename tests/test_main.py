@@ -306,7 +306,7 @@ class TestRunInteractive:
         monkeypatch.setattr(
             main, "offer_pronunciation", lambda entry: print("<offer pronunciation>")
         )
-        monkeypatch.setattr("builtins.input", make_input(["hello"]))
+        monkeypatch.setattr("builtins.input", make_input(["hello", "n"]))
 
     def test_runs_the_whole_original_session_and_logs_the_lookup(
         self, session, capsys, tmp_path
