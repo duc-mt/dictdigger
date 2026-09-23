@@ -26,7 +26,7 @@ from time import monotonic, sleep
 from typing import Protocol
 from urllib.parse import quote
 
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
@@ -41,8 +41,7 @@ DEFAULT_REQUEST_DELAY = 0.5  # seconds between network requests
 # Sites often reject the stock "python-requests/x.y" agent with HTTP 403, so
 # identify the tool honestly, in the form browsers and well-behaved bots use.
 DEFAULT_USER_AGENT = (
-    "Mozilla/5.0 (compatible; dictionary-web-scraping-machine/1.0; "
-    "+https://github.com/duc-mt/web-scraping-dictionary)"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 )
 USER_AGENT_ENV_VAR = "DICTIONARY_USER_AGENT"
 
@@ -89,8 +88,18 @@ def request_headers() -> dict[str, str]:
     The User-Agent can be overridden with the ``DICTIONARY_USER_AGENT``
     environment variable (read on every call, so tests and users can change it).
     """
-    return {"User-Agent": os.environ.get(USER_AGENT_ENV_VAR) or DEFAULT_USER_AGENT}
-
+    return {
+        "User-Agent": os.environ.get(USER_AGENT_ENV_VAR) or DEFAULT_USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+    }
 
 class RateLimiter:
     """Enforce a minimum pause between consecutive network requests.
@@ -172,7 +181,7 @@ def fetch_page(
     if limiter is not None:
         limiter.wait()
     logger.debug("GET %s", url)
-    response = requests.get(url, timeout=timeout, headers=headers or request_headers())
+    response = requests.get(url, timeout=timeout, headers=headers or request_headers(), impersonate="chrome110")
     response.raise_for_status()
     if cache is not None:
         cache.set(word, response.text)
@@ -380,6 +389,7 @@ def download_audio(
             timeout=timeout,
             stream=True,
             headers=headers or request_headers(),
+            impersonate="chrome110",
         ) as response:
             response.raise_for_status()
             with target.open("wb") as handle:

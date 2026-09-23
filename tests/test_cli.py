@@ -21,7 +21,7 @@ from pathlib import Path
 from urllib.parse import unquote
 
 import pytest
-import requests
+from curl_cffi import requests
 
 import functions as func
 import main
@@ -664,8 +664,8 @@ class TestModeSelection:
         monkeypatch.setenv(func.USER_AGENT_ENV_VAR, "custom/1")
         run("--word", "ephemeral", "--no-cache")
 
-        assert web.headers[0] == {"User-Agent": func.DEFAULT_USER_AGENT}
-        assert web.headers[1] == {"User-Agent": "custom/1"}
+        assert web.headers[0]["User-Agent"] == func.DEFAULT_USER_AGENT
+        assert web.headers[1]["User-Agent"] == "custom/1"
 
     def test_help_documents_the_exit_codes_and_examples(self, capsys):
         with pytest.raises(SystemExit) as info:

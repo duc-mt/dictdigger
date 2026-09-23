@@ -13,7 +13,7 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 
 import functions as func

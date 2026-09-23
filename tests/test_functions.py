@@ -12,7 +12,7 @@ import time
 from pathlib import Path
 
 import pytest
-import requests
+from curl_cffi import requests
 from bs4 import BeautifulSoup
 
 import functions as func
@@ -611,7 +611,7 @@ class TestRequestHeaders:
 
     def test_environment_variable_overrides_it(self, monkeypatch):
         monkeypatch.setenv(func.USER_AGENT_ENV_VAR, "my-agent/2")
-        assert func.request_headers() == {"User-Agent": "my-agent/2"}
+        assert func.request_headers()["User-Agent"] == "my-agent/2"
 
     def test_an_empty_environment_variable_falls_back_to_the_default(self, monkeypatch):
         monkeypatch.setenv(func.USER_AGENT_ENV_VAR, "")
@@ -626,7 +626,7 @@ class TestRequestHeaders:
 
         func.fetch_page("word")
 
-        assert seen["headers"] == {"User-Agent": func.DEFAULT_USER_AGENT}
+        assert seen["headers"]["User-Agent"] == func.DEFAULT_USER_AGENT
 
     def test_fetch_page_prefers_explicitly_passed_headers(self, monkeypatch):
         seen: dict = {}
@@ -650,7 +650,7 @@ class TestRequestHeaders:
 
         func.download_audio("https://x/a.mp3", tmp_path / "clip.mp3")
 
-        assert seen["headers"] == {"User-Agent": func.DEFAULT_USER_AGENT}
+        assert seen["headers"]["User-Agent"] == func.DEFAULT_USER_AGENT
 
 
 class TestDescribeNetworkError:

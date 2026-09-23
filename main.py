@@ -52,7 +52,7 @@ from pathlib import Path
 from time import sleep
 from types import ModuleType
 
-import requests
+from curl_cffi import requests
 
 import exporters
 import functions as func
