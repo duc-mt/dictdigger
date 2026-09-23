@@ -112,18 +112,34 @@ def play_audio(path: Path, *, mixer: ModuleType | None = None) -> None:
     """Play an audio file and block until it has finished.
 
     Raises:
-        ImportError: If pygame is not installed.
-        RuntimeError: If there is no usable audio device (pygame.error).
+        ImportError: If pygame is not installed and afplay fails.
+        RuntimeError: If there is no usable audio device.
     """
-    mixer = mixer or load_mixer()
-    mixer.init()
     try:
-        mixer.music.load(str(path))
-        mixer.music.play()
-        while mixer.music.get_busy():
-            sleep(0.1)
-    finally:
-        mixer.quit()
+        mixer = mixer or load_mixer()
+        mixer.init()
+        try:
+            mixer.music.load(str(path))
+            mixer.music.play()
+            while mixer.music.get_busy():
+                sleep(0.1)
+        finally:
+            mixer.quit()
+    except (ImportError, RuntimeError):
+        if sys.platform == "darwin":
+            import subprocess
+
+            try:
+                subprocess.run(
+                    ["afplay", str(path)],
+                    check=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                return
+            except (FileNotFoundError, subprocess.CalledProcessError):
+                pass
+        raise
 
 
 # ------------------------------- Program Steps --------------------------------
