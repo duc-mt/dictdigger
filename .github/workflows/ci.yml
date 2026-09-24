@@ -81,7 +81,7 @@ jobs:
           import re, subprocess, sys, tempfile, threading, urllib.request
 
           proc = subprocess.Popen(
-              [sys.executable, "main.py", "--serve", "--port", "0", "--no-cache",
+              [sys.executable, "run.py", "--serve", "--port", "0", "--no-cache",
                "--data-dir", tempfile.mkdtemp()],
               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
           )

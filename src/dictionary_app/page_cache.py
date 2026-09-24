@@ -22,7 +22,7 @@ import zlib
 from collections.abc import Callable
 from pathlib import Path
 
-from atomic_io import atomic_write_bytes
+from dictionary_app.atomic_io import atomic_write_bytes
 
 logger = logging.getLogger(__name__)
 

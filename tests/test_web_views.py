@@ -11,9 +11,9 @@ from html.parser import HTMLParser
 
 import pytest
 
-import functions as func
-import web_views as views
-from word_history import HistoryRecord
+from dictionary_app import functions as func
+from dictionary_app import web_views as views
+from dictionary_app.word_history import HistoryRecord
 
 HOSTILE = "<script>alert(1)</script> \"quoted\" 'single' & more"
 AUDIO = "https://media.merriam-webster.com/audio/prons/en/us/mp3/t/test0001.mp3"

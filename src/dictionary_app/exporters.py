@@ -16,7 +16,7 @@ import json
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
-import functions as func
+from dictionary_app import functions as func
 
 FORMATS = ("text", "md", "json")
 _SUFFIX_TO_FORMAT = {".txt": "text", ".md": "md", ".json": "json"}
