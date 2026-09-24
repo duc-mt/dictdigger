@@ -904,9 +904,12 @@ class TestAsAPipeline:
             )
             reader.start()
             reader.join(timeout=30)
-            assert first_line, "the server printed nothing"
+            if not first_line:
+                process.terminate()
+                err = process.stderr.read()
+                pytest.fail(f"the server printed nothing. stderr:\n{err}")
             match = re.match(r"Serving on http://127\.0\.0\.1:(\d+)/", first_line[0])
-            assert match, first_line[0]
+            assert match, f"Expected serving message, got: {first_line[0]!r}"
 
             connection = http.client.HTTPConnection(
                 "127.0.0.1", int(match.group(1)), timeout=10

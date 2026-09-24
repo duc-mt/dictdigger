@@ -12,8 +12,8 @@ import time
 from pathlib import Path
 
 import pytest
-from curl_cffi import requests
 from bs4 import BeautifulSoup
+from curl_cffi import requests
 
 import functions as func
 

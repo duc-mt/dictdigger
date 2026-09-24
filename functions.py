@@ -26,8 +26,8 @@ from time import monotonic, sleep
 from typing import Protocol
 from urllib.parse import quote
 
-from curl_cffi import requests
 from bs4 import BeautifulSoup
+from curl_cffi import requests
 
 logger = logging.getLogger(__name__)
 
