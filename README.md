@@ -122,7 +122,7 @@ If the website answers `403 Forbidden`, see
 # Usage
 
 ```bash
-python3 main.py
+python3 run.py
 ```
 
 You'll be prompted to look up a word. If a
@@ -149,13 +149,13 @@ Only the results go to stdout; warnings and errors go to stderr, so the output
 is safe to pipe.
 
 ```bash
-python3 main.py --word serendipity                    # definitions on stdout
-python3 main.py -w serendipity -w ephemeral --format json | jq .
-python3 main.py --word-list words.txt --output definitions.md
-cat words.txt | python3 main.py --word-list - --format json
-python3 main.py --word serendipity --pronounce        # also plays the audio
-python3 main.py --history                             # every lookup so far
-python3 main.py --help
+python3 run.py --word serendipity                    # definitions on stdout
+python3 run.py -w serendipity -w ephemeral --format json | jq .
+python3 run.py --word-list words.txt --output definitions.md
+cat words.txt | python3 run.py --word-list - --format json
+python3 run.py --word serendipity --pronounce        # also plays the audio
+python3 run.py --history                             # every lookup so far
+python3 run.py --help
 ```
 
 | Option | What it does |
@@ -222,7 +222,7 @@ afresh.
 # Web Interface
 
 ```bash
-python3 main.py --serve
+python3 run.py --serve
 ```
 
 This starts a small website on your own computer at `http://127.0.0.1:8000/`
@@ -307,40 +307,32 @@ occasional personal lookups.
 │   ├── dependabot.yml
 │   ├── pull_request_template.md
 │   └── workflows/
-│       ├── ci.yml
-│       ├── codeql.yml
-│       ├── dependency-review.yml
-│       ├── release.yml
-│       ├── scorecard.yml
-│       └── secret-scan.yml
-├── static/
-│   ├── favicon.svg
-│   └── style.css
+├── src/
+│   └── dictionary_app/
+│       ├── static/
+│       │   ├── favicon.svg
+│       │   └── style.css
+│       ├── __init__.py
+│       ├── atomic_io.py
+│       ├── exporters.py
+│       ├── functions.py
+│       ├── main.py
+│       ├── page_cache.py
+│       ├── web_server.py
+│       ├── web_views.py
+│       └── word_history.py
 ├── tests/
 │   ├── test_atomic_io.py
 │   ├── test_cli.py
-│   ├── test_exporters.py
-│   ├── test_functions.py
-│   ├── test_main.py
-│   ├── test_page_cache.py
-│   ├── test_web_server.py
-│   ├── test_web_views.py
-│   └── test_word_history.py
+│   ├── ...
 ├── .gitignore
 ├── .pre-commit-config.yaml
+├── CONTRIBUTING.md
 ├── LICENSE
 ├── README.md
 ├── SECURITY.md
-├── atomic_io.py
-├── exporters.py
-├── functions.py
-├── main.py
-├── page_cache.py
 ├── pyproject.toml
 ├── requirements-dev.txt
 ├── requirements.txt
-├── video_production.mp4
-├── web_server.py
-├── web_views.py
-└── word_history.py
+└── run.py
 ```

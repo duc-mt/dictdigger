@@ -31,10 +31,10 @@ from urllib.parse import parse_qs, urlsplit
 
 from curl_cffi import requests
 
-import exporters
-import functions as func
-import web_views
-from word_history import WordHistory, record_history
+from dictionary_app import exporters
+from dictionary_app import functions as func
+from dictionary_app import web_views
+from dictionary_app.word_history import WordHistory, record_history
 
 logger = logging.getLogger(__name__)
 

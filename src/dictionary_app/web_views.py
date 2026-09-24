@@ -18,9 +18,9 @@ import html
 from collections.abc import Sequence
 from urllib.parse import quote
 
-import exporters
-import functions as func
-from word_history import HistoryRecord
+from dictionary_app import exporters
+from dictionary_app import functions as func
+from dictionary_app.word_history import HistoryRecord
 
 MEDIA_HOST = "media.merriam-webster.com"  # the only host audio may come from
 STYLESHEET = "/static/style.css"

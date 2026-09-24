@@ -11,7 +11,7 @@ import json
 
 import pytest
 
-from page_cache import CACHE_FORMAT_VERSION, DEFAULT_TTL_SECONDS, HtmlCache
+from dictionary_app.page_cache import CACHE_FORMAT_VERSION, DEFAULT_TTL_SECONDS, HtmlCache
 
 
 class FakeClock:

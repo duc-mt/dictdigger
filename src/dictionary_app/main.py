@@ -54,11 +54,11 @@ from types import ModuleType
 
 from curl_cffi import requests
 
-import exporters
-import functions as func
-import web_server
-from page_cache import DEFAULT_TTL_SECONDS, HtmlCache
-from word_history import HISTORY_FILENAME, WordHistory, record_history
+from dictionary_app import exporters
+from dictionary_app import functions as func
+from dictionary_app import web_server
+from dictionary_app.page_cache import DEFAULT_TTL_SECONDS, HtmlCache
+from dictionary_app.word_history import HISTORY_FILENAME, WordHistory, record_history
 
 logger = logging.getLogger(__name__)
 

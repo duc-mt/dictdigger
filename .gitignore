@@ -24,3 +24,10 @@ word_history.json.corrupt-*
 .idea/
 .vscode/
 .DS_Store
+
+# Environment variables and logs
+.env
+*.log
+
+# macOS
+.DS_Store

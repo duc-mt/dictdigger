@@ -1,4 +1,4 @@
-"""Tests for the non-interactive command-line mode of main.py.
+"""Tests for the non-interactive command-line mode of run.py.
 
 Only ``requests.get`` is replaced (by a tiny fake of merriam-webster.com), so
 each test exercises the real argument parsing, cache, history log, parser and
@@ -23,9 +23,9 @@ from urllib.parse import unquote
 import pytest
 from curl_cffi import requests
 
-import functions as func
-import main
-from word_history import WordHistory
+from dictionary_app import functions as func
+from dictionary_app import main
+from dictionary_app.word_history import WordHistory
 
 SERENDIPITY_HTML = """
 <html><head><script type="application/ld+json">
@@ -41,6 +41,7 @@ EPHEMERAL_HTML = (
     "</body></html>"
 )
 PROJECT_DIR = Path(main.__file__).resolve().parent
+ROOT_DIR = Path(__file__).resolve().parent.parent
 
 
 class FakeResponse:
@@ -848,15 +849,15 @@ class TestServe:
 
 # ---------------------------------------------------- real-process behaviour
 class TestAsAPipeline:
-    """Run main.py in a real subprocess to check what a shell would see."""
+    """Run run.py in a real subprocess to check what a shell would see."""
 
     def run_script(self, *argv: str, data_dir: Path, stdin: str = ""):
         return subprocess.run(
-            [sys.executable, "main.py", *argv, "--data-dir", str(data_dir)],
+            [sys.executable, "run.py", *argv, "--data-dir", str(data_dir)],
             capture_output=True,
             text=True,
             input=stdin,
-            cwd=PROJECT_DIR,
+            cwd=ROOT_DIR,
             timeout=60,
             check=False,
         )
@@ -890,12 +891,12 @@ class TestAsAPipeline:
     @pytest.mark.skipif(sys.platform == "win32", reason="needs POSIX signals")
     def test_serve_starts_answers_and_stops_on_ctrl_c(self, tmp_path):
         process = subprocess.Popen(
-            [sys.executable, "main.py", "--serve", "--port", "0"]
+            [sys.executable, "run.py", "--serve", "--port", "0"]
             + ["--data-dir", str(tmp_path), "--no-cache"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            cwd=PROJECT_DIR,
+            cwd=ROOT_DIR,
         )
         try:
             first_line: list[str] = []
@@ -938,11 +939,11 @@ class TestAsAPipeline:
         (tmp_path / "word_history.json").write_text(json.dumps(rows), encoding="utf-8")
 
         result = subprocess.run(
-            f"{sys.executable} main.py --history --data-dir {tmp_path} | head -n 1",
+            f"{sys.executable} run.py --history --data-dir {tmp_path} | head -n 1",
             shell=True,
             capture_output=True,
             text=True,
-            cwd=PROJECT_DIR,
+            cwd=ROOT_DIR,
             timeout=60,
             check=False,
         )
