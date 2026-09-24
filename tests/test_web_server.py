@@ -12,6 +12,7 @@ import html
 import http.client
 import logging
 import socket
+import sys
 import threading
 import time
 from collections.abc import Iterator
@@ -830,6 +831,7 @@ class TestServerBehaviour:
             f"w{n}" for n in range(12)
         )
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Windows port binding behavior is different")
     def test_a_port_that_is_taken_raises_oserror(self, live, lookup, history):
         with pytest.raises(OSError):
             web.create_server(lookup=lookup, history=history, port=live.port)
