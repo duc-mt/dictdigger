@@ -4,5 +4,4 @@ pytest-cov==6.0.0
 ruff==0.9.6
 black==25.1.0
 mypy==1.15.0
-types-requests==2.32.0.20250306
 pip-audit==2.7.3

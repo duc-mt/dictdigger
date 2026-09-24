@@ -103,9 +103,9 @@ def load_mixer() -> ModuleType:
         ImportError: If pygame is not installed.
     """
     os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
-    from pygame import mixer
+    import pygame.mixer as mixer  # type: ignore[import-not-found]
 
-    return mixer
+    return mixer  # type: ignore[no-any-return]
 
 
 def play_audio(path: Path, *, mixer: ModuleType | None = None) -> None:
@@ -126,19 +126,27 @@ def play_audio(path: Path, *, mixer: ModuleType | None = None) -> None:
         finally:
             mixer.quit()
     except (ImportError, RuntimeError):
-        if sys.platform == "darwin":
-            import subprocess
+        import subprocess
 
+        commands = []
+        if sys.platform == "darwin":
+            commands.append(["afplay", str(path)])
+        elif sys.platform == "linux":
+            commands.extend((["aplay", "-q", str(path)], ["paplay", str(path)], ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(path)]))
+        elif sys.platform == "win32":
+            commands.append(["powershell", "-c", f'(New-Object Media.SoundPlayer "{path}").PlaySync()'])
+
+        for cmd in commands:
             try:
                 subprocess.run(
-                    ["afplay", str(path)],
+                    cmd,
                     check=True,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
                 return
             except (FileNotFoundError, subprocess.CalledProcessError):
-                pass
+                continue
         raise
 
 

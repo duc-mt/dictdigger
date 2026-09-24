@@ -508,6 +508,7 @@ class _Handler(BaseHTTPRequestHandler):
 
 class _Server(ThreadingHTTPServer):
     """Threaded, so one slow lookup does not freeze the pages."""
+    request_queue_size = 50
 
     def handle_error(self, request: object, client_address: object) -> None:
         exc = sys.exc_info()[1]
