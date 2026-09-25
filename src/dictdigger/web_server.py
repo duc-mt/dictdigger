@@ -517,6 +517,13 @@ class _Server(ThreadingHTTPServer):
         else:
             logger.exception("error while handling a request from %s", client_address)
 
+    def server_bind(self) -> None:
+        import socketserver
+        socketserver.TCPServer.server_bind(self)
+        host, port = self.server_address[:2]
+        self.server_name = str(host)
+        self.server_port = port
+
 
 def create_server(
     *,
