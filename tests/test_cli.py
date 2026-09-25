@@ -12,6 +12,7 @@ import http.client
 import io
 import json
 import logging
+import os
 import re
 import signal
 import subprocess
@@ -23,9 +24,9 @@ from urllib.parse import unquote
 import pytest
 from curl_cffi import requests
 
-from dictionary_app import functions as func
-from dictionary_app import main
-from dictionary_app.word_history import WordHistory
+from dictdigger import functions as func
+from dictdigger import main
+from dictdigger.word_history import WordHistory
 
 SERENDIPITY_HTML = """
 <html><head><script type="application/ld+json">
@@ -36,9 +37,7 @@ SERENDIPITY_HTML = """
 </body></html>
 """
 EPHEMERAL_HTML = (
-    "<html><body>"
-    '<span class="dtText">: lasting a very short time</span>'
-    "</body></html>"
+    '<html><body><span class="dtText">: lasting a very short time</span></body></html>'
 )
 PROJECT_DIR = Path(main.__file__).resolve().parent
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -53,7 +52,8 @@ class FakeResponse:
     def raise_for_status(self) -> None:
         if self.status_code >= 400:
             raise requests.exceptions.HTTPError(
-                f"{self.status_code} error", response=self  # type: ignore[arg-type]
+                f"{self.status_code} error",
+                response=self,  # type: ignore[arg-type]
             )
 
 
@@ -897,6 +897,7 @@ class TestAsAPipeline:
             stderr=subprocess.PIPE,
             text=True,
             cwd=ROOT_DIR,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"},
         )
         try:
             first_line: list[str] = []

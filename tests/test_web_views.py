@@ -11,9 +11,9 @@ from html.parser import HTMLParser
 
 import pytest
 
-from dictionary_app import functions as func
-from dictionary_app import web_views as views
-from dictionary_app.word_history import HistoryRecord
+from dictdigger import functions as func
+from dictdigger import web_views as views
+from dictdigger.word_history import HistoryRecord
 
 HOSTILE = "<script>alert(1)</script> \"quoted\" 'single' & more"
 AUDIO = "https://media.merriam-webster.com/audio/prons/en/us/mp3/t/test0001.mp3"
@@ -206,7 +206,7 @@ class TestContent:
     def test_the_current_page_is_marked_in_the_navigation(self):
         page = views.render_history([])
         assert '<a href="/history" aria-current="page">' in page
-        assert 'History</a>' in page
+        assert "History</a>" in page
         assert page.count("aria-current") == 1
 
     def test_definitions_are_a_numbered_list_in_order(self):

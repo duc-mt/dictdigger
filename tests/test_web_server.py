@@ -23,9 +23,9 @@ from urllib.parse import parse_qs, urlsplit
 import pytest
 from curl_cffi import requests
 
-from dictionary_app import functions as func
-from dictionary_app import web_server as web
-from dictionary_app.word_history import WordHistory
+from dictdigger import functions as func
+from dictdigger import web_server as web
+from dictdigger.word_history import WordHistory
 
 AUDIO = "https://media.merriam-webster.com/audio/prons/en/us/mp3/t/test0001.mp3"
 TEST = func.Entry("test", ("a means of testing", "a positive result"), AUDIO)
@@ -800,7 +800,7 @@ class TestRequestLimits:
 
 class TestServerBehaviour:
     def test_requests_are_logged_not_printed(self, live, caplog, capsys):
-        caplog.set_level(logging.INFO, logger="dictionary_app.web_server")
+        caplog.set_level(logging.INFO, logger="dictdigger.web_server")
 
         live.request("GET", "/")
 
@@ -831,13 +831,15 @@ class TestServerBehaviour:
             f"w{n}" for n in range(12)
         )
 
-    @pytest.mark.skipif(sys.platform == "win32", reason="Windows port binding behavior is different")
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Windows port binding behavior is different"
+    )
     def test_a_port_that_is_taken_raises_oserror(self, live, lookup, history):
         with pytest.raises(OSError):
             web.create_server(lookup=lookup, history=history, port=live.port)
 
     def test_connection_drops_are_quiet_but_real_errors_are_logged(self, live, caplog):
-        caplog.set_level(logging.DEBUG, logger="dictionary_app.web_server")
+        caplog.set_level(logging.DEBUG, logger="dictdigger.web_server")
         try:
             raise ConnectionResetError("browser went away")
         except ConnectionResetError:

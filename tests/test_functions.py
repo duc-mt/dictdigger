@@ -15,7 +15,7 @@ import pytest
 from bs4 import BeautifulSoup
 from curl_cffi import requests
 
-from dictionary_app import functions as func
+from dictdigger import functions as func
 
 SINGLE_DEFINITION_HTML = """
 <html><body>

@@ -21,7 +21,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from dictionary_app.atomic_io import atomic_write_bytes
+from dictdigger.atomic_io import atomic_write_bytes
 
 logger = logging.getLogger(__name__)
 

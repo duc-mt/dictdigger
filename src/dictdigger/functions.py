@@ -40,9 +40,7 @@ MAX_AUDIO_BYTES = 5 * 1024 * 1024  # pronunciation clips are a few KB
 DEFAULT_REQUEST_DELAY = 0.5  # seconds between network requests
 # Sites often reject the stock "python-requests/x.y" agent with HTTP 403, so
 # identify the tool honestly, in the form browsers and well-behaved bots use.
-DEFAULT_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-)
+DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 USER_AGENT_ENV_VAR = "DICTIONARY_USER_AGENT"
 
 # Matches e.g. "contentURL":"https://.../word.mp3" regardless of surrounding
@@ -100,6 +98,7 @@ def request_headers() -> dict[str, str]:
         "Sec-Fetch-Site": "none",
         "Sec-Fetch-User": "?1",
     }
+
 
 class RateLimiter:
     """Enforce a minimum pause between consecutive network requests.
@@ -180,7 +179,12 @@ def fetch_page(
     if limiter is not None:
         limiter.wait()
     logger.debug("GET %s", url)
-    response = requests.get(url, timeout=timeout, headers=headers or request_headers(), impersonate="chrome110")
+    response = requests.get(
+        url,
+        timeout=timeout,
+        headers=headers or request_headers(),
+        impersonate="chrome110",
+    )
     response.raise_for_status()
     if cache is not None:
         cache.set(word, response.text)

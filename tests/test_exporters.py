@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from dictionary_app import exporters
-from dictionary_app import functions as func
+from dictdigger import exporters
+from dictdigger import functions as func
 
 SERENDIPITY = func.Entry(
     word="serendipity",

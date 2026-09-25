@@ -35,6 +35,7 @@ unit-testability. The page_cache, word_history, and exporters modules follow
 the same idea for the on-disk page cache, the lookup log, and the .txt / .md /
 .json output respectively.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -54,11 +55,10 @@ from types import ModuleType
 
 from curl_cffi import requests
 
-from dictionary_app import exporters
-from dictionary_app import functions as func
-from dictionary_app import web_server
-from dictionary_app.page_cache import DEFAULT_TTL_SECONDS, HtmlCache
-from dictionary_app.word_history import HISTORY_FILENAME, WordHistory, record_history
+from dictdigger import exporters, web_server
+from dictdigger import functions as func
+from dictdigger.page_cache import DEFAULT_TTL_SECONDS, HtmlCache
+from dictdigger.word_history import HISTORY_FILENAME, WordHistory, record_history
 
 logger = logging.getLogger(__name__)
 
@@ -128,13 +128,25 @@ def play_audio(path: Path, *, mixer: ModuleType | None = None) -> None:
     except (ImportError, RuntimeError):
         import subprocess
 
-        commands = []
+        commands: list[list[str]] = []
         if sys.platform == "darwin":
             commands.append(["afplay", str(path)])
         elif sys.platform == "linux":
-            commands.extend((["aplay", "-q", str(path)], ["paplay", str(path)], ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(path)]))
+            commands.extend(
+                (
+                    ["aplay", "-q", str(path)],
+                    ["paplay", str(path)],
+                    ["ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", str(path)],
+                )
+            )
         elif sys.platform == "win32":
-            commands.append(["powershell", "-c", f'(New-Object Media.SoundPlayer "{path}").PlaySync()'])
+            commands.append(
+                [
+                    "powershell",
+                    "-c",
+                    f'(New-Object Media.SoundPlayer "{path}").PlaySync()',
+                ]
+            )
 
         for cmd in commands:
             try:
