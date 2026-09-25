@@ -519,6 +519,7 @@ class _Server(ThreadingHTTPServer):
 
     def server_bind(self) -> None:
         import socketserver
+
         socketserver.TCPServer.server_bind(self)
         host, port = self.server_address[:2]
         self.server_name = str(host)
