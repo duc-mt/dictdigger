@@ -100,7 +100,7 @@ The dictionary program culminates with a little thank you note.
 # Installation
 
 ```bash
-git clone https://github.com/duc-mt/dictionary-web-scraping-machine.git
+git clone https://github.com/duc-mt/dictdigger.git
 cd web-scraping-dictionary
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -308,7 +308,7 @@ occasional personal lookups.
 │   ├── pull_request_template.md
 │   └── workflows/
 ├── src/
-│   └── dictionary_app/
+│   └── dictdigger/
 │       ├── static/
 │       │   ├── favicon.svg
 │       │   └── style.css

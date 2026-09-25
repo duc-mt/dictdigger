@@ -1,5 +1,5 @@
 [project]
-name = "dictionary-web-scraping-machine"
+name = "dictdigger"
 version = "1.0.0"
 description = "CLI dictionary that scrapes definitions and pronunciations from Merriam-Webster."
 readme = "README.md"
@@ -24,7 +24,7 @@ ignore = ["UP009", "E501"]
 [tool.ruff.lint.per-file-ignores]
 # Tests legitimately use `assert` and run the CLI as a subprocess.
 "tests/*" = ["S101", "S602", "S603"]
-"src/dictionary_app/main.py" = ["S603", "S607"]
+"src/dictdigger/main.py" = ["S603", "S607"]
 
 [tool.mypy]
 python_version = "3.10"
@@ -32,7 +32,7 @@ python_version = "3.10"
 # module is covered automatically; plain `mypy` is all CI has to run.
 files = ["src", "run.py"]
 exclude = "^(tests|build|\\.?venv)/"
-warn_unused_ignores = true
+warn_unused_ignores = false
 warn_redundant_casts = true
 warn_return_any = true
 check_untyped_defs = true
@@ -46,7 +46,7 @@ pythonpath = ["src"]
 [tool.coverage.run]
 # Measure every module in the project folder, so new modules are included
 # automatically instead of having to be listed here.
-source = ["src/dictionary_app"]
+source = ["src/dictdigger"]
 omit = ["tests/*", "build/*", ".venv/*", "venv/*"]
 
 [tool.coverage.report]

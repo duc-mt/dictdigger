@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from dictionary_app import atomic_io
+from dictdigger import atomic_io
 
 
 class TestAtomicWriteBytes:

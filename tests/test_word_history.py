@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from dictionary_app.word_history import (
+from dictdigger.word_history import (
     HISTORY_FILENAME,
     HistoryRecord,
     WordHistory,

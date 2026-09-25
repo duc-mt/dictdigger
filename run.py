@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-import sys
 import os
+import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
 
-from dictionary_app.main import main, EXIT_FAILED
+sys.path.insert(0, str(Path(__file__).parent / "src"))
+
+from dictdigger.main import EXIT_FAILED, main
 
 if __name__ == "__main__":
     try:

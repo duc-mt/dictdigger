@@ -31,10 +31,9 @@ from urllib.parse import parse_qs, urlsplit
 
 from curl_cffi import requests
 
-from dictionary_app import exporters
-from dictionary_app import functions as func
-from dictionary_app import web_views
-from dictionary_app.word_history import WordHistory, record_history
+from dictdigger import exporters, web_views
+from dictdigger import functions as func
+from dictdigger.word_history import WordHistory, record_history
 
 logger = logging.getLogger(__name__)
 
@@ -508,6 +507,7 @@ class _Handler(BaseHTTPRequestHandler):
 
 class _Server(ThreadingHTTPServer):
     """Threaded, so one slow lookup does not freeze the pages."""
+
     request_queue_size = 50
 
     def handle_error(self, request: object, client_address: object) -> None:

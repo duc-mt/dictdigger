@@ -16,9 +16,9 @@ import pytest
 from bs4 import BeautifulSoup
 from curl_cffi import requests
 
-from dictionary_app import functions as func
-from dictionary_app import main
-from dictionary_app.word_history import WordHistory
+from dictdigger import functions as func
+from dictdigger import main
+from dictdigger.word_history import WordHistory
 
 
 def make_input(values: list[str]):
@@ -227,7 +227,11 @@ class TestLoadMixer:
 
     def test_importing_main_does_not_import_pygame(self):
         result = subprocess.run(
-            [sys.executable, "-c", "import sys; sys.path.insert(0, str(__import__('pathlib').Path('src').resolve())); from dictionary_app import main; print('pygame' in sys.modules)"],
+            [
+                sys.executable,
+                "-c",
+                "import sys; sys.path.insert(0, str(__import__('pathlib').Path('src').resolve())); from dictdigger import main; print('pygame' in sys.modules)",
+            ],
             capture_output=True,
             text=True,
             check=True,

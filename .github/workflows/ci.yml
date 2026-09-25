@@ -68,8 +68,8 @@ jobs:
       - run: pytest --cov-report=xml  # fails below the coverage floor in pyproject.toml
       - name: CLI smoke test (needs no network)
         run: |
-          python main.py --help > /dev/null
-          python main.py --history --data-dir "$RUNNER_TEMP/smoke"
+          python run.py --help > /dev/null
+          python run.py --history --data-dir "$RUNNER_TEMP/smoke"
       - name: Web interface smoke test (needs no network)
         # A pure-Python check, deliberately avoiding shell job control
         # (backgrounding + kill + wait): an earlier bash version of this step
@@ -84,6 +84,7 @@ jobs:
               [sys.executable, "run.py", "--serve", "--port", "0", "--no-cache",
                "--data-dir", tempfile.mkdtemp()],
               stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+              env={**__import__("os").environ, "PYTHONUNBUFFERED": "1"}
           )
           try:
               first_line = []

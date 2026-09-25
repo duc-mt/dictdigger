@@ -18,9 +18,9 @@ import html
 from collections.abc import Sequence
 from urllib.parse import quote
 
-from dictionary_app import exporters
-from dictionary_app import functions as func
-from dictionary_app.word_history import HistoryRecord
+from dictdigger import exporters
+from dictdigger import functions as func
+from dictdigger.word_history import HistoryRecord
 
 MEDIA_HOST = "media.merriam-webster.com"  # the only host audio may come from
 STYLESHEET = "/static/style.css"
@@ -59,8 +59,9 @@ def audio_src(entry: func.Entry) -> str | None:
 _ICONS = {
     "Search": '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>',
     "Batch": '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" /></svg>',
-    "History": '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>'
+    "History": '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
 }
+
 
 def layout(title: str, body: str, *, active: str = "") -> str:
     """Wrap ``body`` (already-safe HTML) in the shared page frame."""
@@ -235,7 +236,7 @@ def render_history(records: Sequence[HistoryRecord] | None) -> str:
         rows = "".join(
             f"<tr><td>{esc(record.timestamp)}</td>"
             f'<td><a href="{esc(word_url(record.word))}">{esc(record.word)}</a></td>'
-            f"<td><span class=\"badge {'found' if record.found else 'not-found'}\">{'found' if record.found else 'not found'}</span></td></tr>"
+            f'<td><span class="badge {"found" if record.found else "not-found"}">{"found" if record.found else "not found"}</span></td></tr>'
             for record in records
         )
         content = (
