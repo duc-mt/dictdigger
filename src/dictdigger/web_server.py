@@ -15,7 +15,6 @@ Notes:         Requires Python 3.8+
 ==============================================================================
 """
 
-from __future__ import annotations
 
 # =============================================================================
 #
@@ -34,6 +33,7 @@ from __future__ import annotations
 # =============================================================================
 
 
+from __future__ import annotations
 import logging
 import socket
 import sys

@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-from __future__ import annotations
 
 # =============================================================================
 #
@@ -12,6 +11,7 @@ from __future__ import annotations
 #               legibility, reuse, and unit-testability.
 #
 # =============================================================================
+from __future__ import annotations
 import logging
 import os
 import re
