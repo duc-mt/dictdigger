@@ -28,6 +28,7 @@ Notes:         Requires Python 3.8+
 
 
 from __future__ import annotations
+
 import gzip
 import hashlib
 import json

@@ -27,6 +27,7 @@ Notes:         Requires Python 3.8+
 
 
 from __future__ import annotations
+
 import json
 from collections.abc import Callable, Sequence
 from pathlib import Path
