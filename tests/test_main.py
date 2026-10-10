@@ -1,3 +1,16 @@
+"""
+==============================================================================
+Module Name:   test_main.py
+Description:   Implementation and logic for test_main.
+Author:        Mai Tan Duc <ducmai.network@gmail.com>
+Created:       2026-10-10
+Version:       1.0.0
+License:       MIT
+==============================================================================
+Usage:         python3 test_main.py [options]
+Notes:         Requires Python 3.8+
+==============================================================================
+"""
 """Unit tests for main.py.
 
 All network access, audio playback, and file downloads are mocked/monkey-

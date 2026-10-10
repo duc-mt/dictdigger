@@ -1,3 +1,16 @@
+"""
+==============================================================================
+Module Name:   test_web_views.py
+Description:   Implementation and logic for test_web_views.
+Author:        Mai Tan Duc <ducmai.network@gmail.com>
+Created:       2026-10-10
+Version:       1.0.0
+License:       MIT
+==============================================================================
+Usage:         python3 test_web_views.py [options]
+Notes:         Requires Python 3.8+
+==============================================================================
+"""
 """Unit tests for web_views.py.
 
 Definitions come from a scraped website, so the main job of these tests is to
