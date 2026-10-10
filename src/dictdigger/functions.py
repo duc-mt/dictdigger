@@ -12,8 +12,6 @@ from __future__ import annotations
 #               legibility, reuse, and unit-testability.
 #
 # =============================================================================
-
-
 import logging
 import os
 import re
