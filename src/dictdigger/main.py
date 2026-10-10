@@ -14,45 +14,6 @@ Notes:         Requires Python 3.8+
 
 from __future__ import annotations
 
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-# =============================================================================
-#
-#        FILE:  main.py
-#      AUTHOR:  Mai Tan Duc <ducmai.network@gmail.com>
-#     CREATED:  2021-08-20
-# DESCRIPTION:  Retrieve the content of Merriam-Webster online dictionary.
-#   I hereby declare that I completed this work without any improper help
-#   from a third party and without using any aids other than those cited.
-#
-# =============================================================================
-
-# ------------------------------- Module Imports ------------------------------
-"""Description of all imported modules.
-
-The argparse module - ArgumentParser class - defines the command-line
-interface, so the program can also run without prompting (scripts, pipes, cron).
-
-The bs4 module - BeautifulSoup() class - parses the HTML of the website (used
-by the functions module).
-
-The pygame module - mixer submodule - loads and plays the downloaded
-pronunciation mp3 file. It is imported only when audio is requested: pygame
-prints a banner to stdout on import, which would corrupt piped output, and
-plain lookups do not need it.
-
-The requests module - RequestException - is caught so that network problems
-produce a friendly message instead of a crash.
-
-The functions module - a user-defined module - contains reusable helpers
-that are separated from the main program to improve legibility, reuse, and
-unit-testability. The page_cache, word_history, and exporters modules follow
-the same idea for the on-disk page cache, the lookup log, and the .txt / .md /
-.json output respectively.
-"""
-
-
 import argparse
 import functools
 import json
