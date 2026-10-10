@@ -1,8 +1,7 @@
-
 """
 ==============================================================================
 Module Name:   test_web_views.py
-Description:   Unit tests for web_views.py.  Definitions come from a scraped website, so the main job of these tests is to show that untrusted text can never become markup.
+Description:   Source module test_web_views.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0

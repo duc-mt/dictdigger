@@ -1,16 +1,19 @@
+"""
+==============================================================================
+Module Name:   functions.py
+Description:   Source module functions.py.
+Author:        Mai Tan Duc <ducmai.network@gmail.com>
+Created:       2026-10-10
+Version:       1.0.0
+License:       MIT
+==============================================================================
+Usage:         python3 functions.py [options]
+Notes:         Requires Python 3.8+
+==============================================================================
+"""
+
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
-# =============================================================================
-#
-#        FILE:  functions.py
-#      AUTHOR:  Mai Tan Duc <ducmai.network@gmail.com>
-#     CREATED:  2021-08-20
-# DESCRIPTION:  Reusable helpers for retrieving and parsing Merriam-Webster
-#               dictionary pages. Kept separate from main.py to improve
-#               legibility, reuse, and unit-testability.
-#
-# =============================================================================
 from __future__ import annotations
 
 import logging

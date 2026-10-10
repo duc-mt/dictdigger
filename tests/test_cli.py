@@ -1,8 +1,7 @@
-
 """
 ==============================================================================
 Module Name:   test_cli.py
-Description:   Tests for the non-interactive command-line mode of run.py.  Only ``requests.get`` is replaced (by a tiny fake of merriam-webster.com), so each test exercises the real argument parsing, cache, history log, parser and exporters together. Every run gets its own ``--data-dir`` under ``tmp_path`` and ``--delay 0``, so nothing touches the repository or sleeps.
+Description:   Source module test_cli.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0

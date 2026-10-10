@@ -1,10 +1,7 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """
 ==============================================================================
 Module Name:   web_server.py
-Description:   Implementation and logic for web_server.
+Description:   Source module web_server.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0
@@ -15,24 +12,8 @@ Notes:         Requires Python 3.8+
 ==============================================================================
 """
 
-
-# =============================================================================
-#
-#        FILE:  web_server.py
-#     CREATED:  2026-09-21
-# DESCRIPTION:  A small local web interface built on the standard library
-#               alone. ``DictionaryApp`` turns a ``Request`` into a
-#               ``Response`` (no sockets, so it is easy to test), and a thin
-#               ``http.server`` handler connects it to the network.
-#
-#               There is no login: the server is meant for the person who
-#               started it, so it binds to the loopback address by default and
-#               refuses requests that other websites try to send through the
-#               visitor's browser.
-#
-# =============================================================================
-
-
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import logging

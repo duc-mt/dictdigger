@@ -1,10 +1,7 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """
 ==============================================================================
 Module Name:   web_views.py
-Description:   Implementation and logic for web_views.
+Description:   Source module web_views.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0
@@ -15,19 +12,8 @@ Notes:         Requires Python 3.8+
 ==============================================================================
 """
 
-
-# =============================================================================
-#
-#        FILE:  web_views.py
-#     CREATED:  2026-09-21
-# DESCRIPTION:  The pages of the web interface, as pure functions from data to
-#               HTML text. Definitions come from a scraped website, so they are
-#               untrusted: every dynamic value goes through ``esc`` here, and
-#               nothing in the pages needs JavaScript.
-#
-# =============================================================================
-
-
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import html

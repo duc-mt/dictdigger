@@ -1,8 +1,7 @@
-
 """
 ==============================================================================
 Module Name:   test_functions.py
-Description:   Unit tests for functions.py.  Network access is always mocked - these tests never hit the real Merriam-Webster website, so they are fast, deterministic, and safe to run in CI.
+Description:   Source module test_functions.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0

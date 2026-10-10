@@ -1,8 +1,7 @@
-
 """
 ==============================================================================
 Module Name:   test_word_history.py
-Description:   Unit tests for word_history.py.
+Description:   Source module test_word_history.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0

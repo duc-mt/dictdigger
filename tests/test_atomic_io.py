@@ -1,8 +1,7 @@
-
 """
 ==============================================================================
 Module Name:   test_atomic_io.py
-Description:   Unit tests for atomic_io.py.
+Description:   Source module test_atomic_io.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0

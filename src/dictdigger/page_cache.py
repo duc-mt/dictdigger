@@ -1,10 +1,7 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """
 ==============================================================================
 Module Name:   page_cache.py
-Description:   Implementation and logic for page_cache.
+Description:   Source module page_cache.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0
@@ -15,18 +12,8 @@ Notes:         Requires Python 3.8+
 ==============================================================================
 """
 
-
-# =============================================================================
-#
-#        FILE:  page_cache.py
-#     CREATED:  2026-09-20
-# DESCRIPTION:  A small on-disk cache mapping a dictionary word to the HTML of
-#               its Merriam-Webster page, so repeated lookups do not hit the
-#               network again until the entry's time-to-live has elapsed.
-#
-# =============================================================================
-
-
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import gzip

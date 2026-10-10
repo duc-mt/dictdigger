@@ -1,8 +1,7 @@
-
 """
 ==============================================================================
 Module Name:   test_exporters.py
-Description:   Unit tests for exporters.py.
+Description:   Source module test_exporters.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0

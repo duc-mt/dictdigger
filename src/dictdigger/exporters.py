@@ -1,10 +1,7 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """
 ==============================================================================
 Module Name:   exporters.py
-Description:   Implementation and logic for exporters.
+Description:   Source module exporters.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0
@@ -15,17 +12,8 @@ Notes:         Requires Python 3.8+
 ==============================================================================
 """
 
-
-# =============================================================================
-#
-#        FILE:  exporters.py
-#     CREATED:  2026-09-20
-# DESCRIPTION:  Turn parsed dictionary entries into plain text, Markdown, or
-#               JSON, and write them to a file chosen by its extension.
-#
-# =============================================================================
-
-
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import json

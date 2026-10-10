@@ -1,10 +1,7 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
 """
 ==============================================================================
 Module Name:   atomic_io.py
-Description:   Implementation and logic for atomic_io.
+Description:   Source module atomic_io.py.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0
@@ -15,17 +12,8 @@ Notes:         Requires Python 3.8+
 ==============================================================================
 """
 
-
-# =============================================================================
-#
-#        FILE:  atomic_io.py
-#     CREATED:  2026-09-20
-# DESCRIPTION:  Crash-safe file writing shared by the on-disk cache and the
-#               word-history log.
-#
-# =============================================================================
-
-
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 from __future__ import annotations
 
 import contextlib
