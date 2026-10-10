@@ -3,7 +3,7 @@ from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_cli.py
-Description:   Implementation and logic for test_cli.
+Description:   Tests for the non-interactive command-line mode of run.py.  Only ``requests.get`` is replaced (by a tiny fake of merriam-webster.com), so each test exercises the real argument parsing, cache, history log, parser and exporters together. Every run gets its own ``--data-dir`` under ``tmp_path`` and ``--delay 0``, so nothing touches the repository or sleeps.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0
@@ -12,13 +12,6 @@ License:       MIT
 Usage:         python3 test_cli.py [options]
 Notes:         Requires Python 3.8+
 ==============================================================================
-"""
-"""Tests for the non-interactive command-line mode of run.py.
-
-Only ``requests.get`` is replaced (by a tiny fake of merriam-webster.com), so
-each test exercises the real argument parsing, cache, history log, parser and
-exporters together. Every run gets its own ``--data-dir`` under ``tmp_path``
-and ``--delay 0``, so nothing touches the repository or sleeps.
 """
 
 

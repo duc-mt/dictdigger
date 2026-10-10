@@ -3,7 +3,7 @@ from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_functions.py
-Description:   Implementation and logic for test_functions.
+Description:   Unit tests for functions.py.  Network access is always mocked - these tests never hit the real Merriam-Webster website, so they are fast, deterministic, and safe to run in CI.
 Author:        Mai Tan Duc <ducmai.network@gmail.com>
 Created:       2026-10-10
 Version:       1.0.0
@@ -12,12 +12,6 @@ License:       MIT
 Usage:         python3 test_functions.py [options]
 Notes:         Requires Python 3.8+
 ==============================================================================
-"""
-"""Unit tests for functions.py.
-
-Network access is always mocked - these tests never hit the real
-Merriam-Webster website, so they are fast, deterministic, and safe to run
-in CI.
 """
 
 
