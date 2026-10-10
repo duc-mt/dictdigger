@@ -12,6 +12,7 @@ Usage:         python3 run.py [options]
 Notes:         Requires Python 3.8+
 ==============================================================================
 """
+
 import os
 import sys
 from pathlib import Path

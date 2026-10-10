@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 """
 ==============================================================================
 Module Name:   test_cli.py
