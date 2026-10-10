@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_exporters.py
@@ -13,7 +14,6 @@ Notes:         Requires Python 3.8+
 """
 """Unit tests for exporters.py."""
 
-from __future__ import annotations
 
 import json
 from pathlib import Path

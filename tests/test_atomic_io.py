@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_atomic_io.py
@@ -13,7 +14,6 @@ Notes:         Requires Python 3.8+
 """
 """Unit tests for atomic_io.py."""
 
-from __future__ import annotations
 
 import os
 

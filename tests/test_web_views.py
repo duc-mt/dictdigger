@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_web_views.py
@@ -17,7 +18,6 @@ Definitions come from a scraped website, so the main job of these tests is to
 show that untrusted text can never become markup.
 """
 
-from __future__ import annotations
 
 import re
 from html.parser import HTMLParser

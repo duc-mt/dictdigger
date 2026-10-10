@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_functions.py
@@ -18,7 +19,6 @@ Merriam-Webster website, so they are fast, deterministic, and safe to run
 in CI.
 """
 
-from __future__ import annotations
 
 import threading
 import time

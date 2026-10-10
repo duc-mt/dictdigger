@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_web_server.py
@@ -19,7 +20,6 @@ HTTP plumbing. The dictionary itself is always a fake: nothing here reaches
 the network.
 """
 
-from __future__ import annotations
 
 import html
 import http.client

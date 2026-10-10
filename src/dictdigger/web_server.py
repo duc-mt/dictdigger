@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   web_server.py
@@ -30,7 +31,6 @@ Notes:         Requires Python 3.8+
 #
 # =============================================================================
 
-from __future__ import annotations
 
 import logging
 import socket

@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   exporters.py
@@ -23,7 +24,6 @@ Notes:         Requires Python 3.8+
 #
 # =============================================================================
 
-from __future__ import annotations
 
 import json
 from collections.abc import Callable, Sequence

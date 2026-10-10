@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_word_history.py
@@ -13,7 +14,6 @@ Notes:         Requires Python 3.8+
 """
 """Unit tests for word_history.py."""
 
-from __future__ import annotations
 
 import json
 import threading

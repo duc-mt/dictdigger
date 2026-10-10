@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_main.py
@@ -17,7 +18,6 @@ All network access, audio playback, and file downloads are mocked/monkey-
 patched so these tests run instantly and require no external services.
 """
 
-from __future__ import annotations
 
 import os
 import subprocess

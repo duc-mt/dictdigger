@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 # =============================================================================
 #
@@ -36,7 +37,6 @@ the same idea for the on-disk page cache, the lookup log, and the .txt / .md /
 .json output respectively.
 """
 
-from __future__ import annotations
 
 import argparse
 import functools

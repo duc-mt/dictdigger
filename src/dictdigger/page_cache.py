@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   page_cache.py
@@ -24,7 +25,6 @@ Notes:         Requires Python 3.8+
 #
 # =============================================================================
 
-from __future__ import annotations
 
 import gzip
 import hashlib

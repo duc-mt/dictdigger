@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_cli.py
@@ -19,7 +20,6 @@ exporters together. Every run gets its own ``--data-dir`` under ``tmp_path``
 and ``--delay 0``, so nothing touches the repository or sleeps.
 """
 
-from __future__ import annotations
 
 import http.client
 import io

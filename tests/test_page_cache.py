@@ -1,3 +1,4 @@
+from __future__ import annotations
 """
 ==============================================================================
 Module Name:   test_page_cache.py
@@ -17,7 +18,6 @@ Time is injected through a fake clock, so TTL behaviour is tested without
 sleeping.
 """
 
-from __future__ import annotations
 
 import gzip
 import json
