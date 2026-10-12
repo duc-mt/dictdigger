@@ -288,7 +288,7 @@ CI runs on every pull request and push via GitHub Actions
 (`.github/workflows/ci.yml`): linting, formatting, type checking, tests
 across Python 3.10-3.14, a smoke test of the command line, and a dependency
 vulnerability scan. Alongside it: CodeQL, a dependency review of pull requests,
-a secret scan, and an OpenSSF Scorecard run. Pushing a tag such as `v1.0.0`
+and a secret scan. Pushing a tag such as `v1.0.0`
 publishes a GitHub release with a CycloneDX SBOM (`release.yml`); the tag must
 match `version` in `pyproject.toml`. Dependabot keeps dependencies and actions
 current.
