@@ -1,0 +1,2 @@
+# False positive: dummy test fixture key in historical commit b233462
+b233462ab2a5ee3da2033dc2fe8b8304d5e21c0f:tests/test_dictionary_api.py:generic-api-key:17
