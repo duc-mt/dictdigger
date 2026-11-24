@@ -31,5 +31,5 @@ if __name__ == "__main__":
         print("\nInput ended unexpectedly; exiting.", file=sys.stderr)
         sys.exit(EXIT_FAILED)
     except BrokenPipeError:
-        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
-        sys.exit(141)
+        sys.stderr.flush()
+        os._exit(141)
