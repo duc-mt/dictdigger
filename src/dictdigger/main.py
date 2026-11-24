@@ -657,15 +657,7 @@ if __name__ == "__main__":
         print("\nInput ended unexpectedly; exiting.", file=sys.stderr)
         sys.exit(EXIT_FAILED)
     except BrokenPipeError:
-        # The reader (e.g. `head`) closed the pipe early. Point stdout at
-        # /dev/null and close it so Python's shutdown flush does not print a traceback.
-        devnull = os.open(os.devnull, os.O_WRONLY)
-        try:
-            os.dup2(devnull, sys.stdout.fileno())
-        finally:
-            os.close(devnull)
-        try:
-            sys.stdout.close()
-        except OSError:
-            pass
-        sys.exit(EXIT_FAILED)
+        # The reader (e.g. `head`) closed the pipe early. Exit immediately
+        # without flushing sys.stdout so Python does not emit a BrokenPipeError.
+        sys.stderr.flush()
+        os._exit(EXIT_FAILED)
