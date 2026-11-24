@@ -649,7 +649,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     try:
-        sys.exit(main())
+        code = main()
+        sys.stdout.flush()
+        sys.exit(code)
     except KeyboardInterrupt:
         print("\nGoodbye!", file=sys.stderr)
         sys.exit(130)
