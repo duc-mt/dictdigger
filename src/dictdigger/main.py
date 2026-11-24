@@ -658,6 +658,14 @@ if __name__ == "__main__":
         sys.exit(EXIT_FAILED)
     except BrokenPipeError:
         # The reader (e.g. `head`) closed the pipe early. Point stdout at
-        # /dev/null so Python's shutdown flush does not print a traceback.
-        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        # /dev/null and close it so Python's shutdown flush does not print a traceback.
+        devnull = os.open(os.devnull, os.O_WRONLY)
+        try:
+            os.dup2(devnull, sys.stdout.fileno())
+        finally:
+            os.close(devnull)
+        try:
+            sys.stdout.close()
+        except OSError:
+            pass
         sys.exit(EXIT_FAILED)
